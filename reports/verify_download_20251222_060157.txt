@@ -1,0 +1,27 @@
+﻿Γ£à Total candles in database: 501,303
+Γ£à Total symbols: 10
+
+≡ƒôè Data Summary per Symbol:
+--------------------------------------------------------------------------------
+ADA/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+BNB/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+BTC/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+DOGE/USDT    | 2019-12-31 to 2025-12-22 | 52,342 candles
+DOT/USDT     | 2020-08-18 to 2025-12-22 | 46,806 candles
+ETH/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+LTC/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+MATIC/USDT   | 2019-12-31 to 2024-09-10 | 41,112 candles
+SOL/USDT     | 2020-08-11 to 2025-12-22 | 46,991 candles
+XRP/USDT     | 2019-12-31 to 2025-12-22 | 52,342 candles
+
+ΓÜá∩╕Å  Symbols with data gaps:
+ADA/USDT: 8 gaps found
+BNB/USDT: 8 gaps found
+BTC/USDT: 8 gaps found
+DOGE/USDT: 8 gaps found
+DOT/USDT: 5 gaps found
+ETH/USDT: 8 gaps found
+LTC/USDT: 8 gaps found
+MATIC/USDT: 8 gaps found
+SOL/USDT: 5 gaps found
+XRP/USDT: 8 gaps found

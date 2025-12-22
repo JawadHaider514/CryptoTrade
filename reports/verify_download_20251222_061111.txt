@@ -1,0 +1,127 @@
+================================================================================
+DATA VERIFICATION REPORT - 2025-12-22 06:11:17.193388
+================================================================================
+
+STDOUT:
+--------------------------------------------------------------------------------
+
+================================================================================
+HISTORICAL DATA QUALITY VERIFICATION
+================================================================================
+Database: C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system\data\crypto_historical.db
+Started: 2025-12-22 06:11:12.125550
+================================================================================
+
+✅ Connected to: C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system\data\crypto_historical.db
+📊 Database size: 77.78 MB
+
+================================================================================
+1. SCHEMA VERIFICATION
+================================================================================
+📋 Tables found: historical_klines, sqlite_sequence
+📊 Columns found: 10
+   ⚠️ id: INTEGER
+   ✅ symbol: TEXT
+   ✅ timestamp: INTEGER
+   ✅ open: REAL
+   ✅ high: REAL
+   ✅ low: REAL
+   ✅ close: REAL
+   ✅ volume: REAL
+   ✅ timeframe: TEXT
+   ⚠️ downloaded_at: TIMESTAMP
+🔍 Indexes: 3 - sqlite_autoindex_historical_klines_1, idx_symbol_time, idx_timeframe
+✅ Schema verification complete
+
+================================================================================
+2. BASIC STATISTICS
+================================================================================
+📊 Total candles: 501,303
+💎 Unique symbols: 10
+⏱️  Timeframes: 1h
+📅 Date range: 2019-12-31 19:00:00 → 2025-12-22 00:00:00
+⏳ Duration: 2182 days (6.0 years)
+✅ Basic statistics complete
+
+================================================================================
+3. PER-SYMBOL ANALYSIS
+================================================================================
+Symbol             Candles Date Range                                 Price Range         
+-----------------------------------------------------------------------------------------------
+ADA/USDT            52,342 2019-12-31 → 2025-12-22  $      0.02 - $      3.10
+BNB/USDT            52,342 2019-12-31 → 2025-12-22  $      7.67 - $   1368.76
+BTC/USDT            52,342 2019-12-31 → 2025-12-22  $   4130.64 - $ 126011.18
+DOGE/USDT           52,342 2019-12-31 → 2025-12-22  $      0.00 - $      0.74
+ETH/USDT            52,342 2019-12-31 → 2025-12-22  $     96.62 - $   4935.00
+LTC/USDT            52,342 2019-12-31 → 2025-12-22  $     25.24 - $    409.84
+XRP/USDT            52,342 2019-12-31 → 2025-12-22  $      0.12 - $      3.65
+SOL/USDT            46,991 2020-08-11 → 2025-12-22  $      1.18 - $    286.24
+DOT/USDT            46,806 2020-08-18 → 2025-12-22  $      1.73 - $     55.03
+MATIC/USDT          41,112 2019-12-31 → 2024-09-10  $      0.01 - $      2.90
+✅ Per-symbol analysis complete
+
+================================================================================
+4. GAP DETECTION (Missing Data)
+================================================================================
+⚠️  Found 140 gaps across 10 symbols:
+
+   ADA/USDT: 15 gaps
+   BNB/USDT: 15 gaps
+   BTC/USDT: 15 gaps
+   DOGE/USDT: 15 gaps
+   DOT/USDT: 10 gaps
+   ETH/USDT: 15 gaps
+   LTC/USDT: 15 gaps
+   MATIC/USDT: 15 gaps
+   SOL/USDT: 10 gaps
+   XRP/USDT: 15 gaps
+
+✅ Gap detection complete
+
+================================================================================
+5. ANOMALY DETECTION
+================================================================================
+✅ No zero/null prices
+✅ No invalid OHLC relationships
+✅ No duplicate timestamps
+⚠️  Extreme price movements (>50% in 1h):
+   DOGE/USDT: 1 spikes
+
+✅ No critical anomalies detected
+
+✅ Anomaly detection complete
+
+================================================================================
+6. DATA COMPLETENESS
+================================================================================
+✅ ADA/USDT         99.94% complete (52,342/52,374 candles)
+✅ BNB/USDT         99.94% complete (52,342/52,374 candles)
+✅ BTC/USDT         99.94% complete (52,342/52,374 candles)
+✅ DOGE/USDT        99.94% complete (52,342/52,374 candles)
+✅ DOT/USDT         99.96% complete (46,806/46,826 candles)
+✅ ETH/USDT         99.94% complete (52,342/52,374 candles)
+✅ LTC/USDT         99.94% complete (52,342/52,374 candles)
+✅ MATIC/USDT       99.92% complete (41,112/41,144 candles)
+✅ SOL/USDT         99.96% complete (46,991/47,011 candles)
+✅ XRP/USDT         99.94% complete (52,342/52,374 candles)
+
+✅ Completeness calculation complete
+
+================================================================================
+7. VERIFICATION SUMMARY
+================================================================================
+📊 Total Records: 501,303
+💎 Symbols: 10
+💾 Database Size: 77.78 MB
+
+⚠️  ISSUES FOUND: 1
+   1. 140 data gaps detected
+
+💡 Recommendation: Review and fix issues before production use
+
+================================================================================
+Verification completed at: 2025-12-22 06:11:17.176494
+================================================================================
+
+
+Exit Code: 1

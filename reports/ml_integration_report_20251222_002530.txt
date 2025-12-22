@@ -1,0 +1,35 @@
+ML Integration Report - 1765547143238 UTC
+============================================================
+
+ML Filtering Stats:
+- Total signals generated: 2017
+- Signals with ML score: 2017
+- ML-passed signals (>= 56%): 2017
+- ML-rejected signals (< 56%): 0
+- Average ML win probability: 6202.11%
+- Min ML prob: 5600.00%
+- Max ML prob: 8608.00%
+
+Performance Metrics:
+- Win rate (all): N/A
+- Win rate (ML-passed): N/A
+- Total P&L: N/A
+- Average profit per trade: N/A
+- Sharpe ratio: N/A
+
+Pattern Distribution:
+- Top 5 patterns by signal count:
+   - doji: 264
+   - shooting_star: 197
+   - bearish_engulfing: 89
+   - bullish_engulfing: 80
+- Top 5 patterns by win rate:
+   - bullish_engulfing: 0.00% (80 signals)
+   - shooting_star: 0.00% (197 signals)
+   - doji: 0.00% (264 signals)
+   - bearish_engulfing: 0.00% (89 signals)
+
+ML Model Effectiveness:
+- Correlation: N/A
+- False positive rate: N/A
+- False negative rate: N/A

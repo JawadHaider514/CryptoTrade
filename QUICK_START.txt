@@ -1,0 +1,90 @@
+===================================================
+   CRYPTO TRADING DASHBOARD - QUICK START
+===================================================
+
+📁 FILES LOCATION:
+   C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system\
+
+🚀 STARTUP OPTIONS:
+
+   [OPTION 1] Local Testing Only
+   ✅ Double-click: START_LOCAL_SERVER.bat
+   📍 Access: http://127.0.0.1:5000
+   ⏱️ Time to start: ~5 seconds
+
+   [OPTION 2] Public Access (Cloud)
+   ✅ Double-click: START_PUBLIC_SERVER.bat
+   📍 Access: https://xxx.trycloudflare.com (auto-generated)
+   ⏱️ Time to start: ~20 seconds
+   ⚠️ Requires: cloudflared installed
+
+===================================================
+
+🔑 CONFIGURATION:
+
+   Discord Webhook:
+   ✅ Configured in: config/settings.py
+   ✅ Status: ACTIVE
+
+   Binance API Keys (Testnet):
+   ✅ Configured in: config/settings.py
+   ✅ Status: ACTIVE
+   ✅ Safety: Testnet (no real money at risk)
+
+===================================================
+
+📊 AVAILABLE ENDPOINTS:
+
+   PUBLIC API:
+   GET /api/price/BTCUSDT          - Get price
+   GET /api/stats/BTCUSDT          - Get 24h stats  
+   GET /api/chart/BTCUSDT          - Get candles
+   GET /api/signals                - Get signals
+
+   AUTHENTICATED (Testnet):
+   GET /api/account/balance        - Account balance
+   POST /api/order/test            - Test order
+
+   NOTIFICATIONS:
+   POST /api/discord-notify        - Send to Discord
+
+===================================================
+
+✨ FEATURES:
+
+   ✅ Real-time Charts (Lightweight Charts)
+   ✅ ML Trading Signals
+   ✅ Live Price Updates
+   ✅ 24h Statistics
+   ✅ Multiple Timeframes
+   ✅ Discord Alerts
+   ✅ Testnet Trading
+   ✅ Responsive Mobile Design
+
+===================================================
+
+⚡ QUICK COMMANDS:
+
+   Start Server (Local):
+   cd C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system
+   python run.py
+
+   Start with Public URL:
+   START_PUBLIC_SERVER.bat
+
+   Kill Server:
+   taskkill /F /IM python.exe
+
+   Check Port:
+   netstat -ano | findstr :5000
+
+===================================================
+
+🎯 NEXT STEPS:
+
+   1. Run START_LOCAL_SERVER.bat or START_PUBLIC_SERVER.bat
+   2. Wait for "Server running" message
+   3. Open URL in browser
+   4. Enjoy! 🎉
+
+===================================================

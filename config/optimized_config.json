@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "version": "2.0-REAL-DATA",
+    "generated": "2025-12-22T03:46:52.090625",
+    "note": "This config contains REAL data from backtesting, NOT guesses"
+  },
+  "based_on": {
+    "total_signals": 5933,
+    "backtest_period": "30 days",
+    "database": "data/backtest.db"
+  },
+  "confluence_threshold": {
+    "optimal_minimum": 50,
+    "note": "Score must be >= 50 to generate signal"
+  },
+  "accuracy_by_score": {
+    "<65": 57.7
+  },
+  "accuracy_details": {
+    "<65": {
+      "win_rate": 57.7,
+      "signals": 5933,
+      "wins": 3421
+    }
+  },
+  "pattern_scores": {
+    "shooting_star": 11,
+    "bullish_engulfing": 11,
+    "doji": 11,
+    "bearish_engulfing": 12
+  },
+  "pattern_details": {
+    "shooting_star": {
+      "win_rate": 55.4,
+      "score": 11,
+      "sample_size": 746
+    },
+    "bullish_engulfing": {
+      "win_rate": 55.1,
+      "score": 11,
+      "sample_size": 274
+    },
+    "doji": {
+      "win_rate": 57.3,
+      "score": 11,
+      "sample_size": 844
+    },
+    "bearish_engulfing": {
+      "win_rate": 60.2,
+      "score": 12,
+      "sample_size": 299
+    }
+  }
+}

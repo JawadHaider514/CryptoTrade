@@ -1,0 +1,26 @@
+================================================================================
+DATA VERIFICATION REPORT - 2025-12-22 05:53:37.207589
+================================================================================
+
+STDOUT:
+--------------------------------------------------------------------------------
+
+
+STDERR:
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system\scripts\verify_data_quality.py", line 60, in <module>
+    verify_downloaded_data()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Jawad\AI BOT\crypto-dashboard-project\crypto_trading_system\scripts\verify_data_quality.py", line 20, in verify_downloaded_data
+    print(f"\u2705 Total candles in database: {total:,}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+
+--------------------------------------------------------------------------------
+Exit Code: 1
+================================================================================
