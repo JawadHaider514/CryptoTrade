@@ -207,6 +207,16 @@ Examples:
         action='store_true',
         help='Show system status'
     )
+    parser.add_argument(
+        '--paper-demo',
+        action='store_true',
+        help='Run a one-off paper trading demo (no real orders)'
+    )
+    parser.add_argument(
+        '--paper-demo',
+        action='store_true',
+        help='Run a one-off paper trading demo (no real orders)'
+    )
     
     parser.add_argument(
         '--port', '-p',
@@ -223,6 +233,17 @@ Examples:
     # Handle commands
     if args.status:
         show_status()
+        return
+
+    if args.paper_demo:
+        print('\n📘 Running paper trading demo...')
+        try:
+            from scripts.demo_paper_trade import main as demo_main
+            demo_main()
+        except Exception:
+            # Fallback: run module directly
+            import runpy
+            runpy.run_path('scripts/demo_paper_trade.py', run_name='__main__')
         return
     
     if args.test_timing:
