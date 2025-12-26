@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import dashboard and bot components
 try:
+    from . import enhanced_crypto_dashboard
     from enhanced_crypto_dashboard import (
         EnhancedScalpingDashboard,
         DemoTradingBot,
@@ -216,7 +217,7 @@ def run_bot_loop():
                     'active_trades': len(dashboard.demo_bot.active_trades) if dashboard.demo_bot else 0,
                     'running': bot_state['running'],
                     'timestamp': datetime.now().isoformat()
-                }, broadcast=True)
+                })
                 
                 logger.info(f"🔄 Iteration {iteration}: {len(signals)} signals, {bot_state['stats']['total_trades']} trades")
         
@@ -278,7 +279,7 @@ def start_bot():
         bot_state['thread'].start()
         
         # Emit event to all connected clients
-        socketio.emit('bot_started', {'timestamp': datetime.now().isoformat()}, broadcast=True)
+        socketio.emit('bot_started', {'timestamp': datetime.now().isoformat()})
         
         logger.info("✅ Bot started")
         return jsonify({'success': True, 'message': 'Bot started successfully'})
