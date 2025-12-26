@@ -31,7 +31,8 @@ env/
 .venv
 
 # IDE
-.vscode/
+.vscode/settings.json   # Ignore user settings but track our config
+!.vscode/settings.json  # Track our shared settings
 .idea/
 *.swp
 *.swo
