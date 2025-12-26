@@ -22,11 +22,8 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 def main():
     """Start the web server"""
     try:
-        from crypto_bot.server.web_server import create_app
+        from crypto_bot.server.web_server import app
         from crypto_bot.config.settings import APP_CONFIG
-        
-        # Create Flask app
-        app = create_app()
         
         # Get server config
         host = APP_CONFIG.get('SERVER_HOST', '0.0.0.0')

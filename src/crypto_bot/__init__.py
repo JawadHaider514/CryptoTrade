@@ -16,18 +16,11 @@ Modules:
 __version__ = "1.0.0"
 __author__ = "Trading System Team"
 
-# Main exports
-from crypto_bot.core.signal_generator import SignalGenerator
-from crypto_bot.core.exchange_adapter import ExchangeAdapter, get_adapter
-from crypto_bot.core.paper_trader import PaperTrader
-from crypto_bot.core.risk_manager import RiskManager
-from crypto_bot.server.web_server import create_app
-
+# Avoid circular imports - users should import directly from submodules
 __all__ = [
-    "SignalGenerator",
-    "ExchangeAdapter",
-    "get_adapter",
-    "PaperTrader",
-    "RiskManager",
-    "create_app",
+    "core",
+    "api",
+    "server",
+    "config",
+    "models",
 ]
