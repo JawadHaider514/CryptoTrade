@@ -29,7 +29,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PROJECT_ROOT)
 
 # Import configuration
-from config.settings import APP_CONFIG, TRADING_CONFIG
+from crypto_bot.config.settings import APP_CONFIG, TRADING_CONFIG
 
 
 def print_banner():

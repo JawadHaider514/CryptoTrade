@@ -19,7 +19,7 @@ os.environ.setdefault('API_KEY_TESTNET', 'xH14gQvS1VbGpluvmPYJzuzMCtEtBjmI0vAUqs
 os.environ.setdefault('API_SECRET_TESTNET', 'ura98tCA6uXQMAWvg6lDiIg6DnnNrIs7ZbUnU67YAEhjAUyavxuIXO4547emRkBN')
 os.environ.setdefault('DISCORD_WEBHOOK_URL', 'https://discord.com/api/webhooks/1447651247749337089/tajiT4cIfvOrAUxVxHyR2lQT3S6wxMb_iPJ2PCkshPoeH7g6UoxW-FPVIEQMfC70BblV')
 
-from core.exchange_adapter import get_adapter
+from crypto_bot.core.exchange_adapter import get_adapter
 from scripts.health_monitor import HealthMonitor
 
 print("=" * 70)

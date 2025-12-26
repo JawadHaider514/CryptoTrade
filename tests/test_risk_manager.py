@@ -1,4 +1,4 @@
-from core.risk_manager import RiskManager
+from crypto_bot.core.risk_manager import RiskManager
 
 
 def test_position_size():

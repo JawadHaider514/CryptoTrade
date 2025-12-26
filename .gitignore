@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.editorconfig
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+data/*.db
+
+# Generated Files
+*.csv
+*.pkl
+*.pickle
+*.json.tmp
+
+# Logs
+logs/
+*.log
+server.log
+backtest_output.log
+
+# Reports
+reports/
+*.html
+trade_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/*.csv
+data/backtest.db
+demo_trades.db
+interactive_visualization.html

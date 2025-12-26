@@ -111,10 +111,10 @@ The system uses SQLite (data/backtest.db) with these tables:
 PYTHON API USAGE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-from core.backtest_system import HistoricalDataCollector
-from core.signal_generator import HistoricalSignalGenerator
-from core.outcome_tracker import OutcomeTracker
-from core.statistics_calculator import BacktestStatisticsCalculator
+from crypto_bot.core.backtest_system import HistoricalDataCollector
+from crypto_bot.core.signal_generator import HistoricalSignalGenerator
+from crypto_bot.core.outcome_tracker import OutcomeTracker
+from crypto_bot.core.statistics_calculator import BacktestStatisticsCalculator
 
 # Download data
 collector = HistoricalDataCollector()
@@ -137,7 +137,7 @@ report = calculator.generate_comprehensive_report("XRPUSDT")
 LIVE TRACKING USAGE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-from core.live_tracker import LiveSignalTracker
+from crypto_bot.core.live_tracker import LiveSignalTracker
 
 # Create tracker
 tracker = LiveSignalTracker()

@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import Binance WS manager
 try:
-    from server.binance_ws import get_binance_manager
+    from crypto_bot.server.binance_ws import get_binance_manager
     BINANCE_AVAILABLE = True
 except ImportError:
     BINANCE_AVAILABLE = False
@@ -36,7 +36,7 @@ except ImportError:
 
 # Import dashboard components with error handling
 try:
-    from core.enhanced_crypto_dashboard import (
+    from crypto_bot.core.enhanced_crypto_dashboard import (
         EnhancedScalpingDashboard,
         ScalpingConfig,
         SignalFormatter
@@ -482,7 +482,7 @@ def discord_notify() -> Response:
         print(f"📢 Discord notification requested for {symbol}")
         
         # Get Discord webhook URL from config
-        from config.settings import APP_CONFIG
+        from crypto_bot.config.settings import APP_CONFIG
         webhook_url = APP_CONFIG.get('DISCORD_WEBHOOK')
         
         if not webhook_url:

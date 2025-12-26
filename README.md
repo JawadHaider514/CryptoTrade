@@ -1,12 +1,18 @@
-# 🚀 Crypto Trading System - Complete Project
+# Crypto Trading System
 
-## 📋 Project Overview
+A professional-grade cryptocurrency trading system with real-time signal generation, backtesting capabilities, paper trading, and machine learning integration.
 
-A comprehensive cryptocurrency trading system with real-time signal generation, ML predictions, web dashboard, and Discord integration. Built as a Final Year Project.
+## Features
 
----
+- **Real-time Signal Generation**: Live signal analysis using multiple technical indicators
+- **Backtesting Engine**: Test strategies on historical data with detailed performance metrics
+- **Paper Trading**: Simulate trades without using real money
+- **Live Trading Dashboard**: Web-based dashboard with real-time updates via WebSocket
+- **Machine Learning**: Train and predict signal quality with RandomForest models
+- **Risk Management**: Advanced position sizing and risk controls
+- **Multi-exchange Support**: Binance integration with testnet support
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 crypto_trading_system/

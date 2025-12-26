@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test script for Binance API endpoints"""
 
-from server.binance_ws import get_binance_manager
+from crypto_bot.server.binance_ws import get_binance_manager
 
 mgr = get_binance_manager()
 

@@ -4,7 +4,7 @@ Unit tests for ExchangeAdapter
 
 import pytest
 import os
-from core.exchange_adapter import (
+from crypto_bot.core.exchange_adapter import (
     ExchangeAdapterBase, 
     BinanceTestnetAdapter, 
     LiveBinanceAdapter,

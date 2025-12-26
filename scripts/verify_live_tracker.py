@@ -120,12 +120,12 @@ class LiveTrackerVerifier:
         logger.info("="*70)
         
         try:
-            from core.enhanced_crypto_dashboard import EnhancedSignal, SignalQuality
-            from core.live_tracker import LiveSignalTracker
+            from crypto_bot.core.enhanced_crypto_dashboard import EnhancedSignal, SignalQuality
+            from crypto_bot.core.live_tracker import LiveSignalTracker
             from datetime import datetime
             
             # Create test signal
-            from core.enhanced_crypto_dashboard import PredictionMetrics
+            from crypto_bot.core.enhanced_crypto_dashboard import PredictionMetrics
             # Provide a minimal PredictionMetrics object for compatibility with the EnhancedSignal dataclass
             dummy_predictions = PredictionMetrics(
                 price_target_30m=88250.0,

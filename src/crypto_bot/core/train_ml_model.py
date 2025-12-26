@@ -21,7 +21,7 @@ from sklearn.metrics import (
     roc_auc_score, roc_curve, confusion_matrix
 )
 
-from core.ml_features import MLFeatureExtractor
+from crypto_bot.core.ml_features import MLFeatureExtractor
 
 logger = logging.getLogger(__name__)
 

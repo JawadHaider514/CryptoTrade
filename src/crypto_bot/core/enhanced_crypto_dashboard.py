@@ -60,7 +60,7 @@ except ImportError:
 
 # Import the live signal tracker for real-time tracking
 try:
-    from core.live_tracker import LiveSignalTracker
+    from crypto_bot.core.live_tracker import LiveSignalTracker
     LIVE_TRACKER_ENABLED = True
 except ImportError:
     LIVE_TRACKER_ENABLED = False
@@ -68,7 +68,7 @@ except ImportError:
 
 # Import the optimized configuration loader
 try:
-    from config.config_loader import get_config
+    from crypto_bot.config.config_loader import get_config
     CONFIG_LOADED = True
 except ImportError:
     CONFIG_LOADED = False
@@ -1283,7 +1283,7 @@ class SignalAnalyzer:
         
         # Fallback to database-based statistics (still REAL data, not fake)
         try:
-            from core.statistics_calculator import BacktestStatisticsCalculator
+            from crypto_bot.core.statistics_calculator import BacktestStatisticsCalculator
             
             stats_calc = BacktestStatisticsCalculator()
             accuracy_data = stats_calc.calculate_accuracy_by_confluence_score(symbol)

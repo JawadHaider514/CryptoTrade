@@ -86,7 +86,7 @@ def check_port():
         return True
 
 def check_api_keys():
-    from config.settings import APP_CONFIG
+    from crypto_bot.config.settings import APP_CONFIG
     
     api_key = APP_CONFIG.get('BINANCE_API_KEY')
     secret_key = APP_CONFIG.get('BINANCE_SECRET_KEY')

@@ -11,9 +11,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from core.paper_trader import PaperTrader
-from core.risk_manager import RiskManager
-from core.exchange_adapter import get_adapter, BinanceTestnetAdapter
+from crypto_bot.core.paper_trader import PaperTrader
+from crypto_bot.core.risk_manager import RiskManager
+from crypto_bot.core.exchange_adapter import get_adapter, BinanceTestnetAdapter
 
 
 def demo_testnet_trading():

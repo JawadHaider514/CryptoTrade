@@ -119,7 +119,7 @@ class BinanceWSManager:
     def get_account_balance(self) -> dict:
         """Get account balance using API keys (authenticated)"""
         try:
-            from config.settings import APP_CONFIG
+            from crypto_bot.config.settings import APP_CONFIG
             import hmac
             import hashlib
             
@@ -162,7 +162,7 @@ class BinanceWSManager:
     def place_test_order(self, symbol: str, side: str, quantity: float, price: float) -> dict:
         """Place test order (testnet only - no real money)"""
         try:
-            from config.settings import APP_CONFIG
+            from crypto_bot.config.settings import APP_CONFIG
             import hmac
             import hashlib
             

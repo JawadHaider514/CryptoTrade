@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from core.paper_trader import PaperTrader
+from crypto_bot.core.paper_trader import PaperTrader
 
 DB = 'data/test_paper.db'
 
