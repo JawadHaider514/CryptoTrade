@@ -86,9 +86,7 @@ def _check_candle_continuity(df: pd.DataFrame, symbol: str, interval: str) -> No
     
     # Check time differences between consecutive candles
     df_copy = df.copy()
-    df_copy['time_diff_minutes'] = (
-        df_copy['timestamp'].diff().dt.total_seconds() / 60
-    )
+    df_copy['time_diff_minutes'] = df_copy['timestamp'].diff().apply(lambda x: x.total_seconds() / 60)
     
     # Skip first row (NaT diff)
     missing_candles = df_copy[df_copy['time_diff_minutes'] != expected_minutes]

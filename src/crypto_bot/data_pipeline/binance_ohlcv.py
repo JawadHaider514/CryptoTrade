@@ -7,7 +7,7 @@ Functions:
 
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 import time
 import logging
@@ -44,9 +44,9 @@ def fetch_klines(
         Exception: If all retry attempts fail
     """
     if start is None:
-        start = datetime.utcnow() - timedelta(days=365)
+        start = datetime.now(timezone.utc) - timedelta(days=365)
     if end is None:
-        end = datetime.utcnow()
+        end = datetime.now(timezone.utc)
     
     # Convert to milliseconds for Binance API
     start_ms = int(start.timestamp() * 1000)

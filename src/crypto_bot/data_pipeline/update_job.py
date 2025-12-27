@@ -14,9 +14,9 @@ Behavior:
 import argparse
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import pandas as pd
 
@@ -56,7 +56,7 @@ def update_symbol_timeframe(
     symbol: str,
     interval: str,
     lookback_days: int,
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """
     Update data for a single symbol/timeframe combination.
     
@@ -98,7 +98,7 @@ def update_symbol_timeframe(
             logger.info(f"{symbol} {interval}: Incremental update from {start} to {end}")
         else:
             # Full backfill: fetch lookback range
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             start = end - timedelta(days=lookback_days)
             logger.info(f"{symbol} {interval}: Full backfill from {start} to {end}")
         
