@@ -112,11 +112,21 @@ def build_dataset(
         df['label'] = df['label'].astype(int)
         
         # Time-based split info (no shuffle - maintained temporal order)
+        train_end_idx = int(len(df) * 0.70)
+        val_end_idx = int(len(df) * 0.85)
+        test_end_idx = len(df)
+        
         time_split = {
             'strategy': 'time-based (no shuffle)',
-            'train_test_ratio': '0.8/0.2',
-            'train_end_idx': int(len(df) * 0.8),
-            'test_start_idx': int(len(df) * 0.8),
+            'train_ratio': 0.70,
+            'val_ratio': 0.15,
+            'test_ratio': 0.15,
+            'train_end_idx': train_end_idx,
+            'val_end_idx': val_end_idx,
+            'test_end_idx': test_end_idx,
+            'train_samples': train_end_idx,
+            'val_samples': val_end_idx - train_end_idx,
+            'test_samples': test_end_idx - val_end_idx,
         }
         
         # Get feature columns (excluding OHLCV and label)

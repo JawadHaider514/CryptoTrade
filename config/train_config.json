@@ -1,0 +1,36 @@
+{
+  "data_pipeline": {
+    "lookback_days": 365,
+    "timeframes": ["15m", "1h"],
+    "description": "Historical OHLCV data lookback period"
+  },
+  "feature_engineering": {
+    "horizon": 3,
+    "threshold": 0.0025,
+    "threshold_pct": "0.25%",
+    "description": "Label generation: horizon=3 candles, threshold=0.25% future return"
+  },
+  "train_config": {
+    "batch_size": 256,
+    "epochs": 25,
+    "early_stopping_patience": 5,
+    "learning_rate": 0.001,
+    "optimizer": "adam",
+    "loss": "categorical_crossentropy",
+    "validation_split": "time-based (no shuffle)",
+    "description": "Model training hyperparameters"
+  },
+  "time_split": {
+    "strategy": "time-based (no shuffle)",
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "description": "Train: first 70% | Val: next 15% | Test: last 15%"
+  },
+  "notes": {
+    "no_shuffle": "Temporal order preserved for time series",
+    "lookback": "60 days minimum for indicator warmup",
+    "model": "CNN-LSTM",
+    "output": "3-class classification: LONG / SHORT / NO_TRADE"
+  }
+}
