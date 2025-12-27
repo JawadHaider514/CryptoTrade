@@ -7,7 +7,7 @@ Confirms all datasets exist and prints per-coin statistics.
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pandas as pd
 
@@ -22,7 +22,7 @@ DATASET_DIR = PROJECT_ROOT / "data" / "datasets"
 
 
 def validate_datasets(
-    symbols: List[str] = None,
+    symbols: Optional[List[str]] = None,
     timeframe: str = '15m',
 ) -> Dict[str, dict]:
     """
@@ -91,11 +91,12 @@ def validate_datasets(
             # Get split info
             time_split = meta.get('time_split', {})
             train_end_idx = time_split.get('train_end_idx', 0)
-            test_start_idx = time_split.get('test_start_idx', 0)
+            val_end_idx = time_split.get('val_end_idx', 0)
+            test_end_idx = time_split.get('test_end_idx', len(df))
             
             train_size = train_end_idx
-            val_size = test_start_idx - train_end_idx
-            test_size = len(df) - test_start_idx
+            val_size = val_end_idx - train_end_idx
+            test_size = test_end_idx - val_end_idx
             
             result['splits'] = {
                 'train': train_size,
