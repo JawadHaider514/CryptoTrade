@@ -1,0 +1,321 @@
+================================================================================
+SERVICES LAYER API DOCUMENTATION
+================================================================================
+Created: Dec 27, 2025
+Location: src/crypto_bot/services/
+
+================================================================================
+1. MarketHistoryService
+================================================================================
+
+Purpose: Fetch historical candlestick data from Binance with caching
+
+Class: MarketHistoryService
+
+Constructor:
+    MarketHistoryService(cache_ttl: int = 45)
+    
+    Args:
+        cache_ttl: Cache time-to-live in seconds (default: 45)
+
+Main API:
+
+    def get_dataframes(symbol: str) -> Dict[str, pd.DataFrame]
+        """
+        Fetch candlestick DataFrames for a symbol across multiple timeframes
+        
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+        
+        Returns:
+            {
+                '1m': pd.DataFrame,
+                '5m': pd.DataFrame,
+                '15m': pd.DataFrame,
+                '1h': pd.DataFrame,
+                '4h': pd.DataFrame,
+                '1d': pd.DataFrame
+            }
+        """
+
+Additional Methods:
+
+    def clear_cache(symbol: Optional[str] = None)
+        - Clear cache for specific symbol or all
+        
+    def get_cache_stats() -> Dict
+        - Get cache statistics
+        - Returns: total_entries, unique_symbols, symbols, cache_ttl
+
+Features:
+    ✓ Multi-timeframe support (1m, 5m, 15m, 1h, 4h, 1d)
+    ✓ Intelligent caching (45sec TTL, thread-safe)
+    ✓ Safe rate limiting (100ms between requests)
+    ✓ Binance API integration
+    ✓ Automatic DataFrame conversion
+    ✓ Error handling with fallback
+
+DataFrame Columns:
+    - timestamp: datetime (open_time)
+    - open: float
+    - high: float
+    - low: float
+    - close: float
+    - volume: float
+
+Singleton Usage:
+    from crypto_bot.services import get_market_history_service
+    
+    hist = get_market_history_service(cache_ttl=45)
+    dfs = hist.get_dataframes('BTCUSDT')
+    print(dfs['1m'].tail())
+
+Rate Limiting:
+    - 100ms delay between requests
+    - Prevents hitting Binance API limits
+    - Safe for ~1000-1200 requests/minute
+
+Cache Behavior:
+    - Each symbol+timeframe cached separately
+    - TTL: 45 seconds (default, configurable)
+    - Automatically expires old data
+    - Thread-safe with locking
+
+Error Handling:
+    - Returns empty DataFrame on error
+    - Graceful fallback for timeout/network issues
+    - Logs errors for debugging
+
+================================================================================
+2. OrderFlowService (Optional)
+================================================================================
+
+Purpose: Analyze order book flow and market microstructure
+Status: OPTIONAL - Feature flag disabled by default
+
+Class: OrderFlowService
+
+Constructor:
+    OrderFlowService(enable: bool = False)
+    
+    Args:
+        enable: Enable orderflow analysis
+
+Main API:
+
+    def analyze_order_flow(symbol: str, depth_limit: int = 20) -> Dict
+        """
+        Analyze order book flow for a symbol
+        
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+            depth_limit: Number of price levels to analyze (max 20)
+        
+        Returns:
+            {
+                'symbol': str,
+                'bid_ask_ratio': float,
+                'order_imbalance': float (-1 to 1),
+                'market_depth': str,  # 'SHALLOW'/'MODERATE'/'DEEP'/'VERY_DEEP'
+                'large_orders': bool,
+                'bid_volume': float,
+                'ask_volume': float,
+                'timestamp': float,
+                'error': str or None
+            }
+        """
+
+Feature Control:
+
+    @staticmethod
+    def enable_feature()
+        - Enable orderflow analysis globally
+        
+    @staticmethod
+    def disable_feature()
+        - Disable orderflow analysis globally
+        
+    @staticmethod
+    def is_enabled() -> bool
+        - Check if orderflow is enabled
+
+Singleton Usage:
+    from crypto_bot.services import get_orderflow_service
+    
+    # Option 1: Get service and enable
+    orderflow = get_orderflow_service()
+    OrderFlowService.enable_feature()
+    result = orderflow.analyze_order_flow('BTCUSDT')
+    
+    # Option 2: Enable globally before getting service
+    OrderFlowService.enable_feature()
+    orderflow = get_orderflow_service(enable=True)
+
+Metrics Explained:
+
+    bid_ask_ratio:
+        - Ratio of buy volume to sell volume
+        - > 1.0: More buy pressure
+        - < 1.0: More sell pressure
+        - = 1.0: Neutral
+    
+    order_imbalance:
+        - Range: -1 (all sells) to +1 (all buys)
+        - Normalized difference between buy/sell
+        - 0 = neutral
+        - > 0 = bullish
+        - < 0 = bearish
+    
+    market_depth:
+        - SHALLOW: Thin order book
+        - MODERATE: Normal liquidity
+        - DEEP: Good liquidity
+        - VERY_DEEP: Excellent liquidity
+    
+    large_orders:
+        - True if any order > 5% of top 10 volume
+        - Indicates whale activity
+
+Feature Flag Pattern:
+
+    # Disable by default
+    OrderFlowService.ENABLED = False
+    
+    # Enable if needed
+    if ENABLE_ORDERFLOW_ANALYSIS:
+        OrderFlowService.enable_feature()
+    
+    # Check status
+    if OrderFlowService.is_enabled():
+        # Use orderflow in ProfessionalAnalyzer
+        pass
+
+Cache Behavior:
+    - 30 second TTL per symbol
+    - Thread-safe caching
+    - Automatic expiration
+
+Rate Limiting:
+    - 50ms delay between requests
+    - Prevents Binance API rate limits
+
+Error Handling:
+    - Returns neutral response on error
+    - 'error' field contains error message
+    - Defaults: bid_ask_ratio=1.0, order_imbalance=0.0
+
+Integration with ProfessionalAnalyzer:
+    In _analyze_order_flow() method:
+    
+    orderflow = get_orderflow_service()
+    if OrderFlowService.is_enabled():
+        result = orderflow.analyze_order_flow(symbol)
+    else:
+        result = {'bid_ask_ratio': 1.0, ...}  # neutral
+
+================================================================================
+3. SERVICES __init__.py EXPORTS
+================================================================================
+
+Available Imports:
+    from crypto_bot.services import MarketHistoryService
+    from crypto_bot.services import get_market_history_service
+    from crypto_bot.services import OrderFlowService
+    from crypto_bot.services import get_orderflow_service
+
+    # Legacy services still available:
+    from crypto_bot.services import MarketDataService
+    from crypto_bot.services import SignalEngineService
+    from crypto_bot.services import SignalOrchestrator
+
+================================================================================
+INTEGRATION EXAMPLES
+================================================================================
+
+Example 1: Using MarketHistoryService with ProfessionalAnalyzer
+
+    from crypto_bot.services import get_market_history_service
+    from crypto_bot.analyzers import ProfessionalAnalyzer
+    
+    # Get historical data
+    hist_service = get_market_history_service()
+    dfs = hist_service.get_dataframes('BTCUSDT')
+    
+    # Pass to analyzer
+    analyzer = ProfessionalAnalyzer(config)
+    setup = analyzer.analyze_complete_setup('BTCUSDT', dfs)
+
+Example 2: Enabling OrderFlow Analysis
+
+    from crypto_bot.services import OrderFlowService, get_orderflow_service
+    
+    # Enable feature
+    OrderFlowService.enable_feature()
+    
+    # Use in analyzer
+    orderflow = get_orderflow_service()
+    result = orderflow.analyze_order_flow('BTCUSDT')
+    
+    # Use in ProfessionalAnalyzer._analyze_order_flow()
+    order_flow = orderflow.analyze_order_flow(symbol)
+
+Example 3: Cache Management
+
+    from crypto_bot.services import get_market_history_service
+    
+    hist = get_market_history_service()
+    
+    # Get stats
+    stats = hist.get_cache_stats()
+    print(f"Cached symbols: {stats['symbols']}")
+    
+    # Clear cache for symbol
+    hist.clear_cache('BTCUSDT')
+    
+    # Clear all cache
+    hist.clear_cache()
+
+================================================================================
+REQUIREMENTS & DEPENDENCIES
+================================================================================
+
+Requirements:
+    - pandas >= 1.0
+    - requests >= 2.25
+    - threading (stdlib)
+    - time (stdlib)
+
+Binance API Endpoints Used:
+    - GET /api/v3/klines (candlestick data)
+    - GET /api/v3/depth (order book)
+
+Rate Limits:
+    - MarketHistoryService: 100ms/request
+    - OrderFlowService: 50ms/request
+    - Combined: Safe for 1000+ req/min
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Empty DataFrames:
+    - Check internet connection
+    - Verify symbol format (e.g., 'BTCUSDT')
+    - Check Binance API status
+
+Cache Not Working:
+    - Verify TTL setting
+    - Check if cache is cleared elsewhere
+    - Ensure thread-safe access
+
+OrderFlow Returns Neutral:
+    - Check if feature is enabled: OrderFlowService.is_enabled()
+    - Verify symbol is valid
+    - Check order book depth
+
+Rate Limit Errors:
+    - Increase delay in service __init__
+    - Reduce request frequency
+    - Use caching to reduce API calls
+
+================================================================================

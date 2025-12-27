@@ -80,7 +80,5 @@ trade_data/
 Thumbs.db
 
 # Project specific
-data/*.csv
-data/backtest.db
-demo_trades.db
+data/
 interactive_visualization.html

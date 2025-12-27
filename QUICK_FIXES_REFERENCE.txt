@@ -1,0 +1,135 @@
+✅ Developer ko instruction (copy/paste)
+Goal
+
+Dashboard par 35 coins ke liye live price + live ML predictions/signals show hon — per coin card me:
+Direction, Entry, SL, TP1/TP2/TP3 + ETA time, Confidence, Accuracy, Leverage, Current Price.
+
+1) NEW API routes add karo (advanced_web_server.py)
+
+Current APIs me predictions/prices/health missing hain. Add these:
+
+A) Health (must)
+
+GET /api/health
+Return:
+
+{
+  "success": true,
+  "status": "ok",
+  "services_started": true,
+  "cached_predictions": 35,
+  "timestamp": "..."
+}
+
+B) Prices (must)
+
+GET /api/prices
+
+GET /api/prices/<symbol>
+Return:
+
+{ "success": true, "prices": { "BTCUSDT": 43123.1, ... }, "timestamp": "..." }
+
+C) Predictions (must)
+
+GET /api/predictions
+
+GET /api/predictions/<symbol>
+Return:
+
+{
+  "success": true,
+  "predictions": {
+    "SOLUSDT": {
+      "symbol": "SOLUSDT",
+      "direction": "SHORT",
+      "entry_price": 125.29,
+      "stop_loss": 125.37,
+      "take_profits": [
+        { "level": 1, "price": 125.16, "eta": "2025-12-27T11:00:42Z" },
+        { "level": 2, "price": 125.04, "eta": "2025-12-27T11:02:12Z" },
+        { "level": 3, "price": 124.88, "eta": "2025-12-27T11:03:42Z" }
+      ],
+      "confidence_score": 77,
+      "accuracy_percent": 90,
+      "leverage": 20,
+      "current_price": 125.22,
+      "timestamp": "..."
+    }
+  },
+  "timestamp": "..."
+}
+
+
+Important: /api/predictions must return 200 always (even if warming up). No 503 for dashboard.
+
+2) Make compatibility aliases (optional but recommended)
+
+Because frontend sometimes calls singular endpoints, add aliases:
+
+/api/prediction → same as /api/predictions
+
+/api/price → same as /api/prices
+
+3) Reuse existing logic (no duplicate strategy)
+
+Prediction generation must use existing enhanced_crypto_dashboard logic:
+
+either streaming_processor.process_symbols_batch()
+
+or SignalAnalyzer.analyze_symbol() (jo already core file me describe hai)
+
+Server ka kaam sirf:
+
+generate → map to contract → cache → return.
+
+4) Cache + Scheduler (performance optimization)
+
+We have 35 coins. Don’t compute predictions on every request.
+
+Implement:
+
+background thread refresh every 30–60 seconds
+
+store in memory cache {symbol: latest_prediction}
+
+prices update fast (WS/REST), predictions slow (batch)
+
+5) Frontend update (templates/index.html)
+
+UI ko /api/signals ke bajaye /api/predictions se bind karo.
+
+On load: fetch /api/predictions once
+
+Then update via SocketIO (preferred) or poll every 30s
+
+6) Fix current issue: endpoints missing
+
+Right now /api/health, /api/prices, /api/predictions not in route list — so implement them in:
+✅ src/crypto_bot/server/advanced_web_server.py
+
+Extra: existing endpoints keep
+
+Don’t remove existing ones:
+
+/api/signals keep for legacy
+
+/api/stats/<symbol> keep for chart stats
+
+/api/chart/<symbol> keep
+
+Acceptance Criteria (must)
+
+/api/health returns 200
+
+/api/prices returns 35 coins prices
+
+/api/predictions returns 35 coins predictions (or warming_up true initially)
+
+Dashboard shows per coin card with your required fields
+
+CPU stable (no per-request heavy compute)
+
+Short message (agar aap developer ko very short bhejna chaho)
+
+“Currently routes me /api/predictions, /api/prices, /api/health missing hain. Add them in advanced_web_server.py + create caching + refresh loop. /api/predictions must return per-coin prediction object with direction/entry/SL/TPs+ETA/confidence/accuracy/leverage/current_price. Update index.html to use /api/prediction

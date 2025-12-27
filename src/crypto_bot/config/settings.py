@@ -35,7 +35,7 @@ for directory in [DATA_DIR, TRADES_DIR, LOGS_DIR, TEMPLATES_DIR, STATIC_DIR]:
 APP_CONFIG = {
     # Server settings
     'HOST': '0.0.0.0',
-    'PORT': 3000,
+    'PORT': 5000,
     'DEBUG': True,
     'USE_RELOADER': False,
     

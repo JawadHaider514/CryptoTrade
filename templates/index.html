@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <!-- Binance WebSocket -->
     <script>
         // Real-time Binance WebSocket management
@@ -287,6 +288,7 @@
         .tp-box-label { font-size: 8px; color: var(--green); margin-bottom: 2px; }
         .tp-box-value { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 600; color: var(--green); }
         .tp-box-pct { font-size: 8px; color: var(--text-3); }
+        .tp-box-eta { font-size: 7px; color: var(--text-3); margin-top: 2px; cursor: help; }
         .patterns { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
         .pattern-tag { padding: 3px 6px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); border-radius: 3px; font-size: 9px; color: var(--cyan); }
         .sc-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-card-2); border-top: 1px solid var(--border); }
@@ -388,6 +390,7 @@
             <nav class="nav-tabs">
                 <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
                 <button class="nav-tab" data-tab="signals">Signals</button>
+                <button class="nav-tab" data-tab="predictions">Predictions</button>
                 <button class="nav-tab" data-tab="analytics">Analytics</button>
                 <button class="nav-tab" data-tab="history">History</button>
             </nav>
@@ -530,6 +533,17 @@
                     </div>
                 </div>
                 <div class="signals-page" id="sigPage"><div class="loading"><div class="spinner"></div></div></div>
+            </div>
+
+            <!-- PREDICTIONS TAB -->
+            <div class="tab-content" id="tab-predictions">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+                    <h2 style="font-size:18px;">ML Trading Predictions</h2>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-secondary" onclick="loadPredictions()" style="padding:8px 12px;font-size:11px;">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div id="predictions-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;"></div>
             </div>
 
             <!-- ANALYTICS TAB -->
@@ -764,15 +778,34 @@
             renderSigPage(fl);
         }
 
+        // Normalize prediction object to standard format
+        // API now returns unified schema with: confidence_score, accuracy_percent, take_profits[].eta
+        function normalizePrediction(p){
+            // Use normalized keys directly from PredictionMapper
+            p.confidence_score ??= p.confidence ?? 0;
+            p.accuracy_percent ??= p.accuracy ?? 0;
+            p.leverage ??= 20;
+            p.direction ??= 'LONG';
+            p.source ??= 'UNKNOWN';  // PRO, DASHBOARD, or FALLBACK
+            p.take_profits ??= [];  // Should be array with {level, price, eta}
+            return p;
+        }
+        
         // API
         async function refreshData(){await fetchSigs();await fetchStats();await fetchTrades();}
         async function fetchSigs(){
             try{
-                const r=await fetch('/api/signals'),d=await r.json();
-                if(d.success){signals=d.signals;renderSigList(signals.slice(0,5));renderSigPage(signals);document.getElementById('statSig').textContent=signals.length;
-                if(signals.length>0){const avg=signals.reduce((s,x)=>s+x.confluence_score,0)/signals.length;document.getElementById('statConf').textContent=avg.toFixed(0);}
-                toast(`${signals.length} signals updated`);}
-            }catch(e){console.error(e);}
+                const r=await fetch('/api/predictions'),d=await r.json();
+                if(d.success){
+                    // API returns: { success:true, predictions:{symbol:prediction,...}, count:N, warming_up:bool }
+                    // Predictions use normalized schema: confidence_score, accuracy_percent, take_profits[].eta
+                    signals=Object.values(d.predictions||{}).map(normalizePrediction);
+                    renderSigList(signals.slice(0,5));renderSigPage(signals);document.getElementById('statSig').textContent=signals.length;
+                    if(signals.length>0){const avg=signals.reduce((s,x)=>s+x.confidence_score,0)/signals.length;document.getElementById('statConf').textContent=avg.toFixed(0);}
+                    const statusMsg=d.warming_up?'Warming up...':'';
+                    toast(`${signals.length} signals ready${statusMsg}`);
+                }
+            }catch(e){console.error('fetchSigs error:',e);}
         }
         async function fetchStats(){
             try{const r=await fetch('/api/statistics'),d=await r.json();if(d.success&&d.statistics){const s=d.statistics;if(s.win_rate)document.getElementById('statWin').textContent=s.win_rate.toFixed(1)+'%';if(s.total_trades)document.getElementById('statTrades').textContent=s.total_trades;}}catch(e){}
@@ -804,29 +837,139 @@
             const c=document.getElementById('sigPage');
             if(!sigs.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>No signals found</p></div>';return;}
             c.innerHTML=sigs.map((s,i)=>{
-                const l=s.direction==='LONG',sym=s.symbol.replace('USDT',''),q=s.confluence_score>=80?'premium':s.confluence_score>=70?'high':'medium',ml=s.ml_predictions||{};
+                const l=s.direction==='LONG',sym=s.symbol.replace('USDT',''),q=s.confidence_score>=80?'premium':s.confidence_score>=70?'high':'medium',ml=s.ml_predictions||{};
+                const sourceLabel=s.source==='PRO'?'🔬 Pro':'🔮 Dashboard';
                 return `<div class="signal-card ${l?'long':'short'}">
-                    <div class="sc-header"><div class="sc-pair"><div class="sc-icon ${sym.toLowerCase()}">${sym.substring(0,3)}</div><div class="sc-info"><h3>${s.symbol}</h3><span>${s.leverage||20}x Leverage</span></div></div><div class="sc-badges"><span class="dir-tag ${l?'long':'short'}">${s.direction}</span><span class="qual-tag ${q}">${q.toUpperCase()}</span></div></div>
+                    <div class="sc-header"><div class="sc-pair"><div class="sc-icon ${sym.toLowerCase()}">${sym.substring(0,3)}</div><div class="sc-info"><h3>${s.symbol}</h3><span>${s.leverage||20}x Leverage • ${sourceLabel}</span></div></div><div class="sc-badges"><span class="dir-tag ${l?'long':'short'}">${s.direction}</span><span class="qual-tag ${q}">${q.toUpperCase()}</span></div></div>
                     <div class="sc-body">
-                        <div class="price-grid"><div class="price-box"><div class="price-label">Entry</div><div class="price-val entry">${fmtP(s.entry_price)}</div></div><div class="price-box"><div class="price-label">Stop Loss</div><div class="price-val sl">${fmtP(s.stop_loss)}</div></div><div class="price-box"><div class="price-label">TP1</div><div class="price-val tp">${fmtP(s.take_profits[0][0])}</div></div><div class="price-box"><div class="price-label">TP3</div><div class="price-val tp">${fmtP(s.take_profits[2][0])}</div></div></div>
+                        <div class="price-grid"><div class="price-box"><div class="price-label">Entry</div><div class="price-val entry">${fmtP(s.entry_price)}</div></div><div class="price-box"><div class="price-label">Stop Loss</div><div class="price-val sl">${fmtP(s.stop_loss)}</div></div><div class="price-box"><div class="price-label">TP1</div><div class="price-val tp">${fmtP(s.take_profits[0]?.price)}</div></div><div class="price-box"><div class="price-label">TP3</div><div class="price-val tp">${fmtP(s.take_profits[2]?.price)}</div></div></div>
                         ${ml.breakout_probability?`<div class="ml-box"><div class="ml-header">🧠 ML PREDICTIONS</div><div class="ml-grid"><div class="ml-item"><div class="ml-item-label">Breakout</div><div class="ml-item-value ${ml.breakout_probability>=70?'high':'med'}">${ml.breakout_probability?.toFixed(1)}%</div></div><div class="ml-item"><div class="ml-item-label">Volume</div><div class="ml-item-value">${ml.volume_surge_probability?.toFixed(1)}%</div></div><div class="ml-item"><div class="ml-item-label">Risk</div><div class="ml-item-value ${ml.risk_score<=30?'high':'low'}">${ml.risk_score?.toFixed(1)}</div></div><div class="ml-item"><div class="ml-item-label">Target</div><div class="ml-item-value">${fmtP(ml.price_target_1h||s.entry_price)}</div></div></div></div>`:''}
-                        <div class="metrics-row"><div class="metric-box"><div class="metric-header"><span class="metric-label">Confluence</span><span class="metric-value">${s.confluence_score}/100</span></div><div class="metric-bar"><div class="metric-fill cyan" style="width:${s.confluence_score}%"></div></div></div><div class="metric-box"><div class="metric-header"><span class="metric-label">Accuracy</span><span class="metric-value">${s.accuracy_estimate?.toFixed(1)||'--'}%</span></div><div class="metric-bar"><div class="metric-fill green" style="width:${s.accuracy_estimate||0}%"></div></div></div></div>
-                        <div class="tp-row"><div class="tp-box"><div class="tp-box-label">TP1</div><div class="tp-box-value">${fmtP(s.take_profits[0][0])}</div><div class="tp-box-pct">40%</div></div><div class="tp-box"><div class="tp-box-label">TP2</div><div class="tp-box-value">${fmtP(s.take_profits[1][0])}</div><div class="tp-box-pct">35%</div></div><div class="tp-box"><div class="tp-box-label">TP3</div><div class="tp-box-value">${fmtP(s.take_profits[2][0])}</div><div class="tp-box-pct">25%</div></div></div>
-                        ${s.detected_patterns&&s.detected_patterns.length?`<div class="patterns">${s.detected_patterns.slice(0,4).map(p=>`<span class="pattern-tag">${p.replace(/_/g,' ')}</span>`).join('')}</div>`:''}
+                        <div class="metrics-row"><div class="metric-box"><div class="metric-header"><span class="metric-label">Confidence</span><span class="metric-value">${s.confidence_score}/100</span></div><div class="metric-bar"><div class="metric-fill cyan" style="width:${s.confidence_score}%"></div></div></div><div class="metric-box"><div class="metric-header"><span class="metric-label">Accuracy</span><span class="metric-value">${s.accuracy_percent?.toFixed(1)||'--'}%</span></div><div class="metric-bar"><div class="metric-fill green" style="width:${s.accuracy_percent||0}%"></div></div></div></div>
+                        <div class="tp-row"><div class="tp-box"><div class="tp-box-label">TP1</div><div class="tp-box-value">${fmtP(s.take_profits[0]?.price)}</div><div class="tp-box-pct">40%</div><div class="tp-box-eta" title="ETA: ${s.take_profits[0]?.eta||'--'}">⏱ ${new Date(s.take_profits[0]?.eta).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div></div><div class="tp-box"><div class="tp-box-label">TP2</div><div class="tp-box-value">${fmtP(s.take_profits[1]?.price)}</div><div class="tp-box-pct">35%</div><div class="tp-box-eta" title="ETA: ${s.take_profits[1]?.eta||'--'}">⏱ ${new Date(s.take_profits[1]?.eta).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div></div><div class="tp-box"><div class="tp-box-label">TP3</div><div class="tp-box-value">${fmtP(s.take_profits[2]?.price)}</div><div class="tp-box-pct">25%</div><div class="tp-box-eta" title="ETA: ${s.take_profits[2]?.eta||'--'}">⏱ ${new Date(s.take_profits[2]?.eta).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div></div></div>
+                        ${s.patterns&&s.patterns.length?`<div class="patterns">${s.patterns.slice(0,4).map(p=>`<span class="pattern-tag">${p.replace(/_/g,' ')}</span>`).join('')}</div>`:''}
                     </div>
-                    <div class="sc-footer"><div class="sc-timer"><span>⏱</span><span>Valid: <span class="timer-val" data-ts="${s.timestamp}">5:00</span></span></div><div class="sc-actions"><button class="action-btn discord" onclick="toDiscord(${i})">📤 Discord</button><button class="action-btn trade" onclick="execTrade(${i})">⚡ Trade</button></div></div>
+                    <div class="sc-footer"><div class="sc-timer"><span>⏱</span><span>Valid: <span class="timer-val" data-until="${s.valid_until}">30:00</span></span></div><div class="sc-actions"><button class="action-btn discord" onclick="toDiscord(${i})">📤 Discord</button><button class="action-btn trade" onclick="execTrade(${i})">⚡ Trade</button></div></div>
                 </div>`;
             }).join('');
             startTimers();
         }
 
+        // Render all signals in both sidebar and main page
+        function genSigList(){
+            // Update top signals in sidebar
+            renderSigList(signals.slice(0, 5));
+            // Update full signals page
+            renderSigPage(signals);
+            // Update stats
+            document.getElementById('statSig').textContent = signals.length;
+        }
+
         // Utils
         function fmtP(p){if(!p)return'--';if(p>=10000)return'$'+p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});if(p>=1000)return'$'+p.toFixed(2);if(p>=1)return'$'+p.toFixed(4);return'$'+p.toFixed(6);}
-        function startTimers(){setInterval(()=>{document.querySelectorAll('.timer-val').forEach(el=>{const ts=el.dataset.ts;if(!ts)return;const rem=Math.max(0,300-(Date.now()-new Date(ts))/1000),m=Math.floor(rem/60),s=Math.floor(rem%60);el.textContent=`${m}:${s.toString().padStart(2,'0')}`;if(rem<60)el.style.color='var(--red)';});},1000);}
+        function startTimers(){setInterval(()=>{document.querySelectorAll('.timer-val').forEach(el=>{const until=el.dataset.until;if(!until)return;const now=Date.now(),expiry=new Date(until).getTime(),rem=Math.max(0,(expiry-now)/1000),m=Math.floor(rem/60),s=Math.floor(rem%60);el.textContent=`${m}:${s.toString().padStart(2,'0')}`;if(rem<60)el.style.color=rem<30?'var(--red)':'var(--yellow)';if(rem<=0)el.style.color='var(--red)';});},1000);}
         function toast(msg,type='success'){const c=document.getElementById('toastContainer'),t=document.createElement('div');t.className=`toast ${type}`;let icon='✅';if(type==='error')icon='❌';else if(type==='info')icon='ℹ️';else if(type==='warning')icon='⚠️';t.innerHTML=`<span class="toast-icon">${icon}</span><span class="toast-msg">${msg}</span>`;c.appendChild(t);setTimeout(()=>t.remove(),5000);}
         function playSound(){if(!soundOn)return;try{document.getElementById('alertAudio').play().catch(()=>{});}catch(e){}}
 
+        // =====================================================================
+        // SocketIO Real-time Updates
+        // =====================================================================
+        const socket = io.connect(window.location.origin, {
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5,
+            transports: ['websocket', 'polling']
+        });
+
+        // Connection events
+        socket.on('connect', () => {
+            console.log('✅ Connected to trading server');
+            toast('🔌 Connected to server', 'success');
+            // Request current state
+            socket.emit('request_predictions');
+            socket.emit('request_prices');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('❌ Disconnected from server');
+            toast('🔌 Disconnected from server', 'warning');
+        });
+
+        socket.on('error', (data) => {
+            console.error('Server error:', data);
+            toast(`Error: ${data.message}`, 'error');
+        });
+
+        // Real-time prediction updates
+        socket.on('prediction:update', (data) => {
+            if (!data.predictions) return;
+            console.log('📊 Predictions received:', Object.keys(data.predictions).length, 'symbols');
+            // Merge predictions with existing signals
+            Object.entries(data.predictions).forEach(([symbol, prediction]) => {
+                const idx = signals.findIndex(s => s.symbol === symbol);
+                if (idx >= 0) {
+                    signals[idx] = { ...signals[idx], ...prediction };
+                } else {
+                    signals.push(prediction);
+                }
+            });
+            genSigList();
+        });
+
+        socket.on('predictions:update', (data) => {
+            if (!data.predictions) return;
+            console.log('📊 All predictions updated');
+            // Replace all signals
+            signals = Object.values(data.predictions);
+            genSigList();
+        });
+
+        // Real-time price updates
+        socket.on('price:update', (data) => {
+            if (!data.prices) return;
+            console.log('💰 Prices updated:', Object.keys(data.prices).length, 'symbols');
+            // Update prices in signals
+            Object.entries(data.prices).forEach(([symbol, price]) => {
+                const sig = signals.find(s => s.symbol === symbol);
+                if (sig) sig.current_price = price;
+            });
+            genSigList();
+        });
+
+        socket.on('prices:update', (data) => {
+            if (!data.prices) return;
+            console.log('💰 All prices updated');
+            // Update all prices
+            Object.entries(data.prices).forEach(([symbol, price]) => {
+                const sig = signals.find(s => s.symbol === symbol);
+                if (sig) sig.current_price = price;
+            });
+            genSigList();
+        });
+
+        // Symbol-specific updates
+        socket.on('price:update', (data) => {
+            if (!data.symbol || data.price === undefined) return;
+            const sig = signals.find(s => s.symbol === data.symbol);
+            if (sig) {
+                sig.current_price = data.price;
+                genSigList();
+            }
+        });
+
+        socket.on('prediction:update', (data) => {
+            if (!data.symbol || !data.signal) return;
+            const idx = signals.findIndex(s => s.symbol === data.symbol);
+            if (idx >= 0) {
+                signals[idx] = { ...signals[idx], ...data.signal };
+            } else {
+                signals.push(data.signal);
+            }
+            genSigList();
+        });
+
         // Actions
+
         function toDiscord(i){const s=signals[i];if(!s)return;toast(`📤 ${s.symbol} sent to Discord!`);playSound();fetch('/api/discord-notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol:s.symbol,direction:s.direction,entry_price:s.entry_price,stop_loss:s.stop_loss,take_profits:s.take_profits,confluence_score:s.confluence_score})}).catch(console.error);}
         function execTrade(i){const s=signals[i];if(!s)return;toast(`⚡ Trade: ${s.symbol} ${s.direction}`);playSound();}
         function startBot(){botOn=true;document.getElementById('botDot').classList.add('on');document.getElementById('botTxt').textContent='Running';document.getElementById('btnStart').style.display='none';document.getElementById('btnStop').style.display='inline-flex';toast('🤖 Bot started!');playSound();fetch('/api/bot/start',{method:'POST'}).catch(console.error);}
@@ -844,6 +987,110 @@
         }
         document.getElementById('calcModal').addEventListener('click',e=>{if(e.target.id==='calcModal')closeCalc();});
         document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCalc();if(e.ctrlKey&&e.key==='r'){e.preventDefault();refreshData();}});
+
+        // PREDICTIONS SECTION
+        function parseBackendTime(s) {
+            if (!s) return null;
+            const iso = s.includes("T") ? s : (s.replace(" ", "T") + "Z");
+            const d = new Date(iso);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function formatMoney(n) {
+            if (n === null || n === undefined || isNaN(Number(n))) return "--";
+            return "$" + Number(n).toLocaleString(undefined, { maximumFractionDigits: 6 });
+        }
+
+        function formatEta(etaStr) {
+            const d = parseBackendTime(etaStr);
+            if (!d) return "--:--";
+            return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+        }
+
+        function formatValid(validUntilStr) {
+            const end = parseBackendTime(validUntilStr);
+            if (!end) return "--:--";
+            const diff = Math.max(0, end.getTime() - Date.now());
+            const m = Math.floor(diff / 60000);
+            const s = Math.floor((diff % 60000) / 1000);
+            return `${m}:${String(s).padStart(2, "0")}`;
+        }
+
+        function normalizePrediction(p) {
+            p = p || {};
+            p.symbol = p.symbol || "--";
+            p.direction = p.direction || "LONG";
+            p.entry_price = Number(p.entry_price ?? p.entry ?? p.current_price ?? 0);
+            p.stop_loss = Number(p.stop_loss ?? p.sl ?? 0);
+            p.current_price = Number(p.current_price ?? p.price ?? p.entry_price ?? 0);
+            p.confidence_score = Number(p.confidence_score ?? p.confidence ?? p.confluence_score ?? 0);
+            p.accuracy_percent = Number(p.accuracy_percent ?? p.accuracy ?? p.accuracy_estimate ?? 0);
+            p.leverage = Number(p.leverage ?? 1);
+            if (!Array.isArray(p.take_profits) || p.take_profits.length < 3) {
+                p.take_profits = [
+                    { level: 1, price: p.TP1 ?? 0, eta: p.TP1_ETA ?? null },
+                    { level: 2, price: p.TP2 ?? 0, eta: p.TP2_ETA ?? null },
+                    { level: 3, price: p.TP3 ?? 0, eta: p.TP3_ETA ?? null },
+                ];
+            }
+            if (!p.valid_until) {
+                const d = new Date(Date.now() + 30 * 60000);
+                p.valid_until = d.toISOString();
+            }
+            return p;
+        }
+
+        function renderPredictionCard(p) {
+            const tp1 = p.take_profits?.[0] || {};
+            const tp2 = p.take_profits?.[1] || {};
+            const tp3 = p.take_profits?.[2] || {};
+            const dirBadge = p.direction === "SHORT"
+                ? `<span style="padding:2px 8px;border-radius:999px;background:#3b1d1d;color:#ffb4b4;font-weight:700;">SHORT</span>`
+                : `<span style="padding:2px 8px;border-radius:999px;background:#1d3b23;color:#b7ffd0;font-weight:700;">LONG</span>`;
+            return `
+                <div style="border:1px solid #2a2f3a;border-radius:12px;padding:12px;background:#0f131a;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                        <div style="font-size:14px;font-weight:800;">Trading Signal – ${p.symbol}</div>
+                        ${dirBadge}
+                    </div>
+                    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div><div style="opacity:.7;font-size:12px;">Entry Price</div><div style="font-weight:800;">${formatMoney(p.entry_price)}</div></div>
+                        <div><div style="opacity:.7;font-size:12px;">Current Price</div><div style="font-weight:800;">${formatMoney(p.current_price)}</div></div>
+                        <div><div style="opacity:.7;font-size:12px;">Stop Loss</div><div style="font-weight:800;">${formatMoney(p.stop_loss)}</div></div>
+                        <div><div style="opacity:.7;font-size:12px;">Valid</div><div style="font-weight:800;">${formatValid(p.valid_until)}</div></div>
+                    </div>
+                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:8px;">
+                        <div style="display:flex;justify-content:space-between;gap:10px;">
+                            <div><div style="opacity:.7;font-size:12px;">Take Profit 1</div><div style="font-weight:800;">${formatMoney(tp1.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp1.eta)}</span></div></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:10px;">
+                            <div><div style="opacity:.7;font-size:12px;">Take Profit 2</div><div style="font-weight:800;">${formatMoney(tp2.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp2.eta)}</span></div></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;gap:10px;">
+                            <div><div style="opacity:.7;font-size:12px;">Take Profit 3</div><div style="font-weight:800;">${formatMoney(tp3.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp3.eta)}</span></div></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                        <div><div style="opacity:.7;font-size:12px;">Confidence</div><div style="font-weight:800;">${Math.round(p.confidence_score)}/100</div></div>
+                        <div><div style="opacity:.7;font-size:12px;">Accuracy</div><div style="font-weight:800;">${Math.round(p.accuracy_percent)}%</div></div>
+                        <div><div style="opacity:.7;font-size:12px;">Leverage</div><div style="font-weight:800;">${Math.round(p.leverage)}x</div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadPredictions() {
+            const res = await fetch("/api/predictions");
+            const data = await res.json();
+            const list = Object.values(data.predictions || {}).map(normalizePrediction);
+            list.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0));
+            const container = document.getElementById("predictions-container");
+            container.innerHTML = list.map(renderPredictionCard).join("");
+        }
+
+        // Initial load + refresh
+        loadPredictions();
+        setInterval(loadPredictions, 30000); // every 30s
     </script>
 </body>
 </html>

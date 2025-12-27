@@ -1,0 +1,136 @@
+INDEX.HTML UPDATES
+==================
+Updated: December 27, 2025
+
+Now consumes /api/predictions endpoint with normalized schema from PredictionMapper
+
+================================================================================
+1. API ENDPOINT
+================================================================================
+
+Primary: GET /api/predictions
+Returns: { success:true, predictions:{symbol:prediction,...}, warming_up:bool }
+
+Fallback: Also consumes /api/signals array (backward compat)
+
+================================================================================
+2. NORMALIZED KEYS USED
+================================================================================
+
+confidence_score      (0-100)         - confidence level
+accuracy_percent      (0-100)         - accuracy percentage
+take_profits[]        (array)         - takes profits with ETA
+  - level             (1-3)           - take profit level
+  - price             (float)         - TP price
+  - eta               (ISO datetime)  - Estimated time to reach TP
+
+source                (string)        - PRO, DASHBOARD, or FALLBACK
+
+Other fields (unchanged):
+- symbol
+- direction           (LONG/SHORT)
+- entry_price
+- stop_loss
+- leverage
+- current_price
+- timestamp           (ISO datetime)
+- valid_until         (ISO datetime)
+- reasons             (array)
+- patterns            (array)
+- market_context      (string)
+
+================================================================================
+3. RENDER UPDATES
+================================================================================
+
+normalizePrediction(p)
+  - Uses normalized keys directly from API
+  - Defaults: confidence_score, accuracy_percent, leverage, direction
+  - Adds source tracking
+
+fetchSigs()
+  - Fetches /api/predictions
+  - Maps Object.values(predictions) to signals array
+  - Handles warming_up flag
+
+renderSigPage(sigs)
+  - Changed: "Confluence" → "Confidence"
+  - Changed: accuracy_estimate → accuracy_percent
+  - Changed: detected_patterns → patterns
+  - Added: Source indicator (🔬 Pro or 🔮 Dashboard)
+  - Added: TP ETA display with tooltip
+  - Format: ⏱ HH:MM (from ISO datetime)
+
+================================================================================
+4. NEW FEATURES
+================================================================================
+
+TP ETA Display
+- Each take profit now shows estimated time of arrival
+- Format: ⏱ HH:MM
+- Tooltip: Full ISO datetime on hover
+- CSS class: .tp-box-eta
+
+Source Indicator
+- Shows analyzer source for each signal
+- Icons: 🔬 (Pro) or 🔮 (Dashboard)
+- Helps users understand signal quality
+
+Warming Up Flag
+- Displayed in toast when system initializing
+- Prevents false "no signals" alerts during startup
+
+================================================================================
+5. CSS ADDITIONS
+================================================================================
+
+.tp-box-eta {
+  font-size: 7px;
+  color: var(--text-3);
+  margin-top: 2px;
+  cursor: help;
+}
+
+Styling for new TP ETA time displays
+
+================================================================================
+6. KEY CHANGES
+================================================================================
+
+Before:
+- Used "confluence_score" (misleading - actually confidence)
+- Used "accuracy_estimate" (non-standard naming)
+- Used "detected_patterns" (inconsistent)
+- No source tracking
+- No TP ETA display
+
+After:
+- Uses "confidence_score" (from API)
+- Uses "accuracy_percent" (matches API schema)
+- Uses "patterns" (matches API schema)
+- Shows source: PRO, DASHBOARD, or FALLBACK
+- Displays TP ETA with time estimate
+
+================================================================================
+7. BACKWARD COMPATIBILITY
+================================================================================
+
+normalizePrediction() fallbacks:
+- p.confidence_score ??= p.confidence
+- p.accuracy_percent ??= p.accuracy
+- Ensures old field names still work if API returns them
+
+/api/signals still supported
+- Returns array instead of object
+- Frontend detects and converts
+
+================================================================================
+8. ERROR HANDLING
+================================================================================
+
+- Gracefully handles missing take_profits
+- Displays "--" for missing prices
+- Handles invalid ISO datetimes
+- Toasts show warming_up status
+
+================================================================================

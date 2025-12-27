@@ -1,0 +1,71 @@
+{
+  "version": "1.0",
+  "timestamp": "2025-12-27T00:00:00",
+  "source": "accuracy_validator",
+  "validation_mode": "offline",
+  "confluence_threshold": 6,
+  "accuracy_threshold": 0.75,
+  "weights": {
+    "layer_1": 0.15,
+    "layer_2": 0.15,
+    "layer_3": 0.12,
+    "layer_4": 0.12,
+    "layer_5": 0.10,
+    "layer_6": 0.10,
+    "layer_7": 0.08,
+    "layer_8": 0.18
+  },
+  "quality_mapping": {
+    "A+": {
+      "min_confluence": 8,
+      "risk_pct": 3.0,
+      "confidence_floor": 85
+    },
+    "A": {
+      "min_confluence": 7,
+      "risk_pct": 2.5,
+      "confidence_floor": 75
+    },
+    "B+": {
+      "min_confluence": 6,
+      "risk_pct": 2.0,
+      "confidence_floor": 65
+    },
+    "B": {
+      "min_confluence": 5,
+      "risk_pct": 1.0,
+      "confidence_floor": 55
+    }
+  },
+  "time_filters": {
+    "asian_session": {
+      "active": false,
+      "hours": [0, 8]
+    },
+    "london_session": {
+      "active": true,
+      "hours": [8, 16]
+    },
+    "ny_session": {
+      "active": true,
+      "hours": [13, 21]
+    },
+    "market_close": {
+      "active": false,
+      "hours": [21, 24]
+    }
+  },
+  "risk_management": {
+    "initial_capital": 10000,
+    "risk_per_trade": 0.02,
+    "commission": 0.001,
+    "slippage": 0.0005,
+    "max_leverage": 125,
+    "default_leverage": 10
+  },
+  "validation_results": {
+    "confluence_stats": {},
+    "layer_performance": {},
+    "risk_adjustment_stats": {}
+  }
+}

@@ -1,22 +1,28 @@
 #!/usr/bin/env python3
 """
-🌐 CRYPTO DASHBOARD - WEB SERVER
-================================
-Browser-based interface with stunning UI
+CRYPTO TRADING BOT WEB SERVER
+Complete API with real-time updates, bot control, and live analytics
 """
 
-from flask import Flask, render_template, jsonify, request, send_from_directory, Response
-from typing import Optional, Dict, Any, List
+from flask import Flask, render_template, jsonify, request, send_from_directory, send_file
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import json
 import os
 import sys
 import time
-import numpy as np
+import threading
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Optional, Dict, Any, List
+import queue
+import csv
+from io import StringIO, BytesIO
+import requests
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import Binance WS manager
 try:

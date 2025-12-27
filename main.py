@@ -1,47 +1,45 @@
 #!/usr/bin/env python3
 """
 Crypto Trading System - Main Entry Point
-=========================================
-
-This is a thin wrapper that starts the Flask/SocketIO web server.
-
-Usage:
-    python main.py                    # Start server (default)
-
-Configuration is loaded from crypto_bot.config.settings
+Starts ADVANCED Flask-SocketIO server
 """
 
 import sys
-import os
 from pathlib import Path
 
-# Add src to path so we can import crypto_bot
-PROJECT_ROOT = Path(__file__).parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+PROJECT_ROOT = Path(__file__).resolve().parent
+SRC_PATH = PROJECT_ROOT / "src"
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
 
-def main():
-    """Start the web server"""
+def main() -> None:
     try:
-        from crypto_bot.server.web_server import app
+        from crypto_bot.server.advanced_web_server import app, socketio
         from crypto_bot.config.settings import APP_CONFIG
-        
-        # Get server config
-        host = APP_CONFIG.get('SERVER_HOST', '0.0.0.0')
-        port = APP_CONFIG.get('SERVER_PORT', 5000)
-        debug = APP_CONFIG.get('DEBUG', False)
-        
+
+        host = APP_CONFIG.get("HOST", "0.0.0.0")
+
+        port = APP_CONFIG.get("PORT", 5000)
+        try:
+            port = int(port)
+        except (TypeError, ValueError):
+            port = 5000
+
+        debug = APP_CONFIG.get("DEBUG", False)
+        if isinstance(debug, str):
+            debug = debug.strip().lower() in {"1", "true", "yes", "y", "on"}
+
         print(f"\n{'='*60}")
-        print(f"🚀 Starting Crypto Trading System")
+        print("🚀 Starting Crypto Trading System (ADVANCED)")
         print(f"   Server: http://{host}:{port}")
         print(f"   Debug:  {debug}")
         print(f"{'='*60}\n")
-        
-        # Run server
-        app.run(host=host, port=port, debug=debug)
-        
+
+        # IMPORTANT: use_reloader=False to avoid double threads / double bot loop
+        socketio.run(app, host=host, port=port, debug=debug, use_reloader=False)
+
     except ImportError as e:
         print(f"❌ Import Error: {e}", file=sys.stderr)
-        print(f"Make sure all dependencies are installed: pip install -e .", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"❌ Error: {e}", file=sys.stderr)
