@@ -31,8 +31,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project root
-PROJECT_ROOT = Path(__file__).parents[4]  # .../crypto_trading_system
+# Project root - find by walking up directory tree
+PROJECT_ROOT = Path(__file__).resolve()
+while PROJECT_ROOT.name != "crypto_trading_system" and PROJECT_ROOT.parent != PROJECT_ROOT:
+    PROJECT_ROOT = PROJECT_ROOT.parent
+
 DATA_DIR = PROJECT_ROOT / "data" / "ohlcv"
 
 
@@ -94,7 +97,7 @@ def update_symbol_timeframe(
             # Incremental update: fetch from last timestamp to now
             last_timestamp = existing_df['timestamp'].max()
             start = last_timestamp
-            end = datetime.utcnow()
+            end = datetime.now(timezone.utc)
             logger.info(f"{symbol} {interval}: Incremental update from {start} to {end}")
         else:
             # Full backfill: fetch lookback range
