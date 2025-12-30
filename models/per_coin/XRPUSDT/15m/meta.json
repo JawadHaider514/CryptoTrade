@@ -1,0 +1,36 @@
+{
+  "symbol": "XRPUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.3703279938977879,
+    "precision": 0.3481274635047653,
+    "recall": 0.3703279938977879,
+    "f1": 0.308395327875875,
+    "confusion_matrix": [
+      [
+        0,
+        269,
+        1241
+      ],
+      [
+        0,
+        790,
+        1548
+      ],
+      [
+        0,
+        244,
+        1152
+      ]
+    ]
+  }
+}

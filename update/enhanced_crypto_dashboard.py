@@ -35,11 +35,19 @@ except ImportError:
 class ScalpingConfig:
     """Configuration for crypto scalping system"""
     def __init__(self):
-        # Trading symbols
-        self.SYMBOLS = [
-            "XRPUSDT", "BTCUSDT", "ETHUSDT", "BNBUSDT",
-            "ADAUSDT", "SOLUSDT", "DOGEUSDT", "DOTUSDT"
-        ]
+        # Load trading symbols from config
+        try:
+            import json as _json
+            from pathlib import Path as _Path
+            _config_path = _Path(__file__).parent.parent / "config" / "coins.json"
+            _coins_config = _json.load(open(_config_path))
+            self.SYMBOLS = _coins_config.get("symbols", [])[:8]  # Use first 8
+        except Exception:
+            # Fallback: 8 primary trading symbols
+            self.SYMBOLS = [
+                "XRPUSDT", "BTCUSDT", "ETHUSDT", "BNBUSDT",
+                "ADAUSDT", "SOLUSDT", "DOGEUSDT", "DOTUSDT"
+            ]
         self.PRIMARY_SYMBOL = "XRPUSDT"
         
         # Timeframes for analysis

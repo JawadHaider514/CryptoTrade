@@ -135,12 +135,12 @@ def build_dataset(
         ]]
         result['features_list'] = sorted(feature_cols)
         
-        # Class distribution
-        class_counts = df['label'].value_counts().to_dict()
+        # Class distribution - use correct mapping: SHORT=0, NO_TRADE=1, LONG=2
+        label_value_counts = df['label'].value_counts().reindex([0, 1, 2], fill_value=0)
         result['class_distribution'] = {
-            'LONG': int(class_counts.get(1, 0)),
-            'SHORT': int(class_counts.get(-1, 0)),
-            'NO_TRADE': int(class_counts.get(0, 0)),
+            'SHORT': int(label_value_counts.get(0, 0)),
+            'NO_TRADE': int(label_value_counts.get(1, 0)),
+            'LONG': int(label_value_counts.get(2, 0)),
         }
         
         # Save dataset
@@ -159,6 +159,12 @@ def build_dataset(
             'total_samples': result['dataset_rows'],
             'features': result['features_list'],
             'num_features': len(result['features_list']),
+            'label_column': 'label',
+            'label_mapping': {
+                'SHORT': 0,
+                'NO_TRADE': 1,
+                'LONG': 2,
+            },
             'label_config': {
                 'horizon': horizon,
                 'threshold': LABEL_THRESHOLD,

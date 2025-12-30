@@ -380,16 +380,24 @@ class StreamingSignalProcessor:
         self.binance_api = BinanceStreamingAPI()
         self.ml_predictor = AdvancedMLPredictor()
         
-        # 35 Premium trading symbols
-        self.SYMBOLS = [
-            "BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
-            "BNBUSDT", "ADAUSDT", "TRXUSDT", "AVAXUSDT", "LINKUSDT",
-            "SUIUSDT", "TONUSDT", "DOTUSDT", "PEPEUSDT", "SHIBUSDT",
-            "BCHUSDT", "NEARUSDT", "LTCUSDT", "APTUSDT", "HBARUSDT",
-            "ICPUSDT", "MATICUSDT", "UNIUSDT", "FILUSDT", "ETCUSDT",
-            "ATOMUSDT", "OPUSDT", "ARBUSDT", "INJUSDT", "FTMUSDT",
-            "ALGOUSDT", "VETUSDT", "EOSUSDT", "AAVEUSDT", "MKRUSDT"
-        ]
+        # Load trading symbols from config
+        try:
+            import json as _json
+            from pathlib import Path as _Path
+            _config_path = _Path(__file__).parent.parent.parent / "config" / "coins.json"
+            _coins_config = _json.load(open(_config_path))
+            self.SYMBOLS = _coins_config.get("symbols", [])
+        except Exception:
+            # Fallback: 32 verified trading symbols
+            self.SYMBOLS = [
+                "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT",
+                "SOLUSDT", "DOGEUSDT", "DOTUSDT", "AVAXUSDT", "UNIUSDT",
+                "LINKUSDT", "XLMUSDT", "ATOMUSDT", "MANAUSDT", "SANDUSDT",
+                "DASHUSDT", "VETUSDT", "ICPUSDT", "GMTUSDT", "PEOPLEUSDT",
+                "LUNCUSDT", "CHZUSDT", "NEARUSDT", "FLOWUSDT", "FILUSDT",
+                "QTUMUSDT", "SNXUSDT", "SHIBUSDT", "PEPEUSDT", "WIFUSDT",
+                "FLOKIUSDT", "OPUSDT",
+            ]
         
         # Processing state
         self.is_processing = False
@@ -407,7 +415,11 @@ class StreamingSignalProcessor:
             logger.info(f"🔄 Processing {len(self.SYMBOLS)} symbols...")
             
             # Get streaming market data
-            market_data = self.binance_api.get_streaming_data_sync(self.SYMBOLS)
+            try:
+                market_data = self.binance_api.get_streaming_data_sync(self.SYMBOLS)
+            except Exception as data_err:
+                logger.error(f"❌ Error fetching market data: {type(data_err).__name__}: {str(data_err)[:100]}")
+                return []
             
             if not market_data:
                 logger.warning("⚠️ No market data received")
@@ -419,15 +431,17 @@ class StreamingSignalProcessor:
             # Process each symbol
             for symbol in symbols_to_process:
                 if symbol not in market_data:
+                    logger.debug(f"⊘ {symbol} not in market data")
                     continue
                 
                 try:
                     signal = self._analyze_symbol_advanced(symbol, market_data[symbol])
                     if signal:
                         signals.append(signal)
+                        logger.debug(f"✅ Signal generated for {symbol}")
                         
                 except Exception as e:
-                    logger.error(f"❌ Error analyzing {symbol}: {e}")
+                    logger.error(f"❌ Error analyzing {symbol}: {type(e).__name__}: {str(e)[:100]}")
                     continue
             
             processing_time = time.time() - start_time
@@ -440,9 +454,9 @@ class StreamingSignalProcessor:
             
             logger.info(f"✅ Batch completed: {len(signals)} signals in {processing_time:.2f}s")
             return signals
-            
+        
         except Exception as e:
-            logger.error(f"❌ Batch processing error: {e}")
+            logger.error(f"❌ Critical error in process_symbols_batch: {type(e).__name__}: {str(e)[:100]}", exc_info=True)
             return []
     
     def _analyze_symbol_advanced(self, symbol: str, data: Dict) -> Optional[EnhancedSignal]:
@@ -678,16 +692,24 @@ class StreamingSignalProcessor:
 class ScalpingConfig:
     """Configuration for crypto scalping system"""
     def __init__(self):
-        # Trading symbols (now using streaming system's symbols)
-        self.SYMBOLS = [
-            "BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT", "DOGEUSDT",
-            "BNBUSDT", "ADAUSDT", "TRXUSDT", "AVAXUSDT", "LINKUSDT",
-            "SUIUSDT", "TONUSDT", "DOTUSDT", "PEPEUSDT", "SHIBUSDT",
-            "BCHUSDT", "NEARUSDT", "LTCUSDT", "APTUSDT", "HBARUSDT",
-            "ICPUSDT", "MATICUSDT", "UNIUSDT", "FILUSDT", "ETCUSDT",
-            "ATOMUSDT", "OPUSDT", "ARBUSDT", "INJUSDT", "FTMUSDT",
-            "ALGOUSDT", "VETUSDT", "EOSUSDT", "AAVEUSDT", "MKRUSDT"
-        ]
+        # Load trading symbols from config
+        try:
+            import json as _json
+            from pathlib import Path as _Path
+            _config_path = _Path(__file__).parent.parent.parent / "config" / "coins.json"
+            _coins_config = _json.load(open(_config_path))
+            self.SYMBOLS = _coins_config.get("symbols", [])
+        except Exception:
+            # Fallback: 32 verified trading symbols
+            self.SYMBOLS = [
+                "BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT",
+                "SOLUSDT", "DOGEUSDT", "DOTUSDT", "AVAXUSDT", "UNIUSDT",
+                "LINKUSDT", "XLMUSDT", "ATOMUSDT", "MANAUSDT", "SANDUSDT",
+                "DASHUSDT", "VETUSDT", "ICPUSDT", "GMTUSDT", "PEOPLEUSDT",
+                "LUNCUSDT", "CHZUSDT", "NEARUSDT", "FLOWUSDT", "FILUSDT",
+                "QTUMUSDT", "SNXUSDT", "SHIBUSDT", "PEPEUSDT", "WIFUSDT",
+                "FLOKIUSDT", "OPUSDT",
+            ]
         self.PRIMARY_SYMBOL = "XRPUSDT"
         
         # Timeframes for analysis
@@ -2587,15 +2609,14 @@ class EnhancedScalpingDashboard:
             'BTCUSDT': 'Bitcoin', 'ETHUSDT': 'Ethereum', 'BNBUSDT': 'Binance Coin',
             'XRPUSDT': 'Ripple', 'ADAUSDT': 'Cardano', 'SOLUSDT': 'Solana',
             'AVAXUSDT': 'Avalanche', 'DOTUSDT': 'Polkadot', 'LINKUSDT': 'Chainlink',
-            'SUIUSDT': 'Sui', 'TONUSDT': 'Toncoin', 'PEPEUSDT': 'Pepe',
-            'SHIBUSDT': 'Shiba Inu', 'BCHUSDT': 'Bitcoin Cash', 'NEARUSDT': 'NEAR Protocol',
-            'LTCUSDT': 'Litecoin', 'APTUSDT': 'Aptos', 'HBARUSDT': 'Hedera',
-            'ICPUSDT': 'Internet Computer', 'MATICUSDT': 'Polygon', 'UNIUSDT': 'Uniswap',
-            'FILUSDT': 'Filecoin', 'ETCUSDT': 'Ethereum Classic', 'ATOMUSDT': 'Cosmos',
-            'OPUSDT': 'Optimism', 'ARBUSDT': 'Arbitrum', 'INJUSDT': 'Injective',
-            'FTMUSDT': 'Fantom', 'ALGOUSDT': 'Algorand', 'VETUSDT': 'VeChain',
-            'EOSUSDT': 'EOS', 'AAVEUSDT': 'Aave', 'MKRUSDT': 'Maker',
-            'TRXUSDT': 'TRON', 'DOGEUSDT': 'Dogecoin'
+            'PEPEUSDT': 'Pepe', 'SHIBUSDT': 'Shiba Inu', 'NEARUSDT': 'NEAR Protocol',
+            'ICPUSDT': 'Internet Computer', 'UNIUSDT': 'Uniswap',
+            'FILUSDT': 'Filecoin', 'ATOMUSDT': 'Cosmos',
+            'OPUSDT': 'Optimism', 'ALGOUSDT': 'Algorand', 'VETUSDT': 'VeChain',
+            'DOGEUSDT': 'Dogecoin', 'XLMUSDT': 'Stellar', 'MANAUSDT': 'Decentraland',
+            'SANDUSDT': 'The Sandbox', 'DASHUSDT': 'Dash', 'GMTUSDT': 'GMT Token',
+            'PEOPLEUSDT': 'ConstitutionDAO', 'LUNCUSDT': 'Luna Classic', 'CHZUSDT': 'Chiliz',
+            'FLOWUSDT': 'Flow', 'QTUMUSDT': 'Qtum', 'SNXUSDT': 'Synthetix', 'WIFUSDT': 'dogwifhat'
         }
         return coin_map.get(symbol, symbol.replace('USDT', ''))
     

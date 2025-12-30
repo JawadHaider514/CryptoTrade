@@ -29,8 +29,14 @@ class MarketDataService:
         self.ws = None
         self.use_websocket = use_websocket
         
-        # Bootstrap: Get initial prices
-        self._bootstrap_prices()
+        # Initialize with fallback prices immediately
+        for symbol in symbols:
+            self.prices[symbol] = 100.0
+            self.timestamps[symbol] = datetime.utcnow()
+        
+        # Bootstrap prices in background (non-blocking)
+        bootstrap_thread = threading.Thread(target=self._bootstrap_prices, daemon=True)
+        bootstrap_thread.start()
     
     def _bootstrap_prices(self):
         """Get initial prices from Binance REST API"""
@@ -62,7 +68,7 @@ class MarketDataService:
         # Use ThreadPoolExecutor with max 10 concurrent threads
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [executor.submit(fetch_price, symbol) for symbol in self.symbols]
-            # Wait for completion with timeout (increased to 60s for 35 symbols)
+            # Wait for completion with timeout (60s for all symbols)
             for future in as_completed(futures, timeout=60):
                 try:
                     future.result()

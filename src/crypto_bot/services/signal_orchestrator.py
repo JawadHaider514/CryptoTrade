@@ -49,9 +49,17 @@ class SignalOrchestrator:
                     # Generate signals for all symbols
                     signals = self.engine.generate_for_all(symbols, timeframe="15m")
                     
+                    logger.info(f"📊 SIGNAL GENERATION: Generated {len(signals)} signals")
+                    
                     # Store in repository
                     for symbol, signal in signals.items():
-                        self.repo.upsert_latest(signal)
+                        logger.info(f"💾 SAVING [{symbol}]: {signal.direction} @ ${signal.entry_price:.2f} (conf={signal.confidence_score}%)")
+                        
+                        try:
+                            result = self.repo.upsert_latest(signal)
+                            logger.info(f"✅ SAVED [{symbol}]: Result={result}")
+                        except Exception as save_err:
+                            logger.error(f"❌ FAILED to save [{symbol}]: {type(save_err).__name__}: {str(save_err)[:100]}")
                     
                     # Broadcast to all connected clients via SocketIO
                     if signals:

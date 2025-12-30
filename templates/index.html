@@ -300,6 +300,52 @@
         .action-btn.trade { background: var(--green); color: #000; }
         .action-btn:hover { transform: translateY(-1px); }
 
+        /* Prediction Card Styles */
+        .pred-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: all 0.3s; }
+        .pred-card:hover { border-color: var(--cyan); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .pred-card.long { border-top: 4px solid var(--green); }
+        .pred-card.short { border-top: 4px solid var(--red); }
+        .pred-card.notrade { border-top: 4px solid var(--text-3); }
+        .pred-header { display: flex; justify-content: space-between; padding: 14px; background: var(--bg-card-2); align-items: center; }
+        .pred-symbol { display: flex; align-items: center; gap: 10px; }
+        .pred-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron'; font-weight: 700; font-size: 12px; background: linear-gradient(135deg, #f7931a, #c77800); color: #fff; }
+        .pred-info h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .pred-info span { font-size: 10px; color: var(--text-3); }
+        .pred-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .pred-dir-tag { padding: 4px 12px; border-radius: 15px; font-size: 10px; font-weight: 700; }
+        .pred-dir-tag.long { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+        .pred-dir-tag.short { background: rgba(255,82,82,0.15); color: var(--red); border: 1px solid rgba(255,82,82,0.3); }
+        .pred-dir-tag.notrade { background: rgba(90,103,133,0.15); color: var(--text-3); border: 1px solid rgba(90,103,133,0.3); }
+        .pred-body { padding: 14px; }
+        .pred-price-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .pred-price-box { background: var(--bg-primary); padding: 8px; border-radius: 5px; text-align: center; }
+        .pred-price-label { font-size: 8px; color: var(--text-3); text-transform: uppercase; margin-bottom: 3px; }
+        .pred-price-val { font-family: 'JetBrains Mono'; font-size: 11px; font-weight: 600; }
+        .pred-price-val.entry { color: var(--cyan); }
+        .pred-price-val.sl { color: var(--red); }
+        .pred-price-val.tp { color: var(--green); }
+        .pred-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .pred-metric { background: var(--bg-primary); padding: 8px; border-radius: 5px; }
+        .pred-metric-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .pred-metric-label { font-size: 9px; color: var(--text-3); }
+        .pred-metric-value { font-family: 'Orbitron'; font-size: 12px; font-weight: 600; color: var(--cyan); }
+        .pred-metric-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+        .pred-metric-fill { height: 100%; border-radius: 2px; }
+        .pred-metric-fill.cyan { background: var(--cyan); }
+        .pred-metric-fill.green { background: var(--green); }
+        .pred-tp-row { display: flex; gap: 5px; margin-bottom: 12px; }
+        .pred-tp-box { flex: 1; background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.2); border-radius: 5px; padding: 6px; text-align: center; }
+        .pred-tp-box.short { background: rgba(255,82,82,0.1); border-color: rgba(255,82,82,0.2); }
+        .pred-tp-box-label { font-size: 8px; color: var(--green); margin-bottom: 2px; }
+        .pred-tp-box.short .pred-tp-box-label { color: var(--red); }
+        .pred-tp-box-value { font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 600; color: var(--green); }
+        .pred-tp-box.short .pred-tp-box-value { color: var(--red); }
+        .pred-tp-box-eta { font-size: 7px; color: var(--text-3); margin-top: 2px; }
+        .pred-footer { display: flex; justify-content: space-between; padding: 10px 14px; background: var(--bg-card-2); border-top: 1px solid var(--border); align-items: center; font-size: 10px; color: var(--text-2); }
+        .pred-valid { font-family: 'JetBrains Mono'; color: var(--yellow); font-weight: 600; }
+        .pred-tf-btn { padding: 6px 12px; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; transition: all 0.2s; }
+        .pred-tf-btn.active { background: var(--cyan); color: #000; border-color: var(--cyan); }
+
         /* Analytics */
         .analytics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         @media (max-width: 1200px) { .analytics-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -538,12 +584,16 @@
             <!-- PREDICTIONS TAB -->
             <div class="tab-content" id="tab-predictions">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                    <h2 style="font-size:18px;">ML Trading Predictions</h2>
-                    <div style="display:flex;gap:8px;">
+                    <h2 style="font-size:18px;">ML Trading Predictions (32 Symbols)</h2>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <div style="display:flex;gap:6px;background:var(--bg-primary);padding:6px;border-radius:6px;border:1px solid var(--border);">
+                            <button class="pred-tf-btn active" data-tf="15m" onclick="switchTimeframe('15m')">15M</button>
+                            <button class="pred-tf-btn" data-tf="1h" onclick="switchTimeframe('1h')">1H</button>
+                        </div>
                         <button class="btn btn-secondary" onclick="loadPredictions()" style="padding:8px 12px;font-size:11px;">🔄 Refresh</button>
                     </div>
                 </div>
-                <div id="predictions-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;"></div>
+                <div id="predictions-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:15px;"></div>
             </div>
 
             <!-- ANALYTICS TAB -->
@@ -576,7 +626,7 @@
                             <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:6px;"><div style="font-size:20px;font-weight:700;color:var(--purple);">87.3%</div><div style="font-size:9px;color:var(--text-3);">Accuracy</div></div>
                             <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:6px;"><div style="font-size:20px;font-weight:700;color:var(--cyan);">2,345</div><div style="font-size:9px;color:var(--text-3);">Processed</div></div>
                             <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:6px;"><div style="font-size:20px;font-weight:700;color:var(--green);">0.34s</div><div style="font-size:9px;color:var(--text-3);">Avg Time</div></div>
-                            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:6px;"><div style="font-size:20px;font-weight:700;">35</div><div style="font-size:9px;color:var(--text-3);">Symbols</div></div>
+                            <div style="text-align:center;padding:12px;background:var(--bg-primary);border-radius:6px;"><div style="font-size:20px;font-weight:700;">32</div><div style="font-size:9px;color:var(--text-3);">Symbols</div></div>
                         </div>
                     </div>
                     <div class="analytics-card">
@@ -873,17 +923,22 @@
         // =====================================================================
         // SocketIO Real-time Updates
         // =====================================================================
+        // Windows dev mode: use polling-only transport to avoid websocket conflicts
+        // Other platforms: auto-detect (websocket with fallback to polling)
+        const isWindows = navigator.platform.includes('Win');
+        const socketTransports = isWindows ? ['polling'] : ['websocket', 'polling'];
+        
         const socket = io.connect(window.location.origin, {
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             reconnectionAttempts: 5,
-            transports: ['websocket', 'polling']
+            transports: socketTransports  // Windows: polling only, Others: websocket + polling
         });
 
         // Connection events
         socket.on('connect', () => {
-            console.log('✅ Connected to trading server');
+            console.log('✅ Connected to trading server (transport: ' + (isWindows ? 'polling' : 'websocket/polling') + ')');
             toast('🔌 Connected to server', 'success');
             // Request current state
             socket.emit('request_predictions');
@@ -1002,18 +1057,39 @@
         }
 
         function formatEta(etaStr) {
-            const d = parseBackendTime(etaStr);
-            if (!d) return "--:--";
-            return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+            if (!etaStr) return '--';
+            try {
+                // Handle ISO 8601 format: 2025-12-28T09:15:51Z
+                const date = new Date(etaStr);
+                if (isNaN(date.getTime())) return '--';
+                // Format in user's local time: HH:MM
+                return date.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit', hour12: false});
+            } catch (e) {
+                return '--';
+            }
         }
 
         function formatValid(validUntilStr) {
-            const end = parseBackendTime(validUntilStr);
-            if (!end) return "--:--";
-            const diff = Math.max(0, end.getTime() - Date.now());
-            const m = Math.floor(diff / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            return `${m}:${String(s).padStart(2, "0")}`;
+            if (!validUntilStr) return '--';
+            try {
+                // Handle ISO 8601 format: 2025-12-28T09:15:51Z
+                const expiryDate = new Date(validUntilStr);
+                if (isNaN(expiryDate.getTime())) return '--';
+                
+                // Calculate remaining time
+                const now = Date.now();
+                const expiryTime = expiryDate.getTime();
+                const remainingMs = Math.max(0, expiryTime - now);
+                
+                // Format as M:SS
+                const totalSeconds = Math.floor(remainingMs / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                return `${minutes}:${String(seconds).padStart(2, '0')}`;
+            } catch (e) {
+                return '--';
+            }
         }
 
         function normalizePrediction(p) {
@@ -1041,51 +1117,145 @@
         }
 
         function renderPredictionCard(p) {
-            const tp1 = p.take_profits?.[0] || {};
-            const tp2 = p.take_profits?.[1] || {};
-            const tp3 = p.take_profits?.[2] || {};
-            const dirBadge = p.direction === "SHORT"
-                ? `<span style="padding:2px 8px;border-radius:999px;background:#3b1d1d;color:#ffb4b4;font-weight:700;">SHORT</span>`
-                : `<span style="padding:2px 8px;border-radius:999px;background:#1d3b23;color:#b7ffd0;font-weight:700;">LONG</span>`;
+            if (!p || !p.symbol) return '';
+            
+            const isLong = p.direction === 'LONG';
+            const isShort = p.direction === 'SHORT';
+            const isNoTrade = p.direction === 'NO_TRADE';
+            const sym = p.symbol.replace('USDT', '');
+            
+            // Get TPs or empty array
+            const tps = p.take_profits || [];
+            const tp1 = tps[0] || {price: 0, eta: new Date(Date.now() + 3600000).toISOString()};
+            const tp2 = tps[1] || {price: 0, eta: new Date(Date.now() + 5400000).toISOString()};
+            const tp3 = tps[2] || {price: 0, eta: new Date(Date.now() + 7200000).toISOString()};
+            
+            const dirClass = isLong ? 'long' : isShort ? 'short' : 'notrade';
+            const dirText = isNoTrade ? 'NO_TRADE' : p.direction;
+            
+            const validUntil = new Date(p.valid_until || Date.now() + 3600000);
+            const validStr = validUntil.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
+            
+            // Get current price or use entry as fallback
+            const currPrice = p.current_price || p.entry_price || 0;
+            
+            // Only show TP levels if we have them (not NO_TRADE)
+            let tpSection = '';
+            if (!isNoTrade && tps.length > 0) {
+                tpSection = `
+                    <div class="pred-tp-row">
+                        <div class="pred-tp-box ${isShort ? 'short' : ''}">
+                            <div class="pred-tp-box-label">TP1</div>
+                            <div class="pred-tp-box-value">${formatMoney(tp1.price)}</div>
+                            <div class="pred-tp-box-eta">⏱ ${formatEta(tp1.eta)}</div>
+                        </div>
+                        <div class="pred-tp-box ${isShort ? 'short' : ''}">
+                            <div class="pred-tp-box-label">TP2</div>
+                            <div class="pred-tp-box-value">${formatMoney(tp2.price)}</div>
+                            <div class="pred-tp-box-eta">⏱ ${formatEta(tp2.eta)}</div>
+                        </div>
+                        <div class="pred-tp-box ${isShort ? 'short' : ''}">
+                            <div class="pred-tp-box-label">TP3</div>
+                            <div class="pred-tp-box-value">${formatMoney(tp3.price)}</div>
+                            <div class="pred-tp-box-eta">⏱ ${formatEta(tp3.eta)}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
             return `
-                <div style="border:1px solid #2a2f3a;border-radius:12px;padding:12px;background:#0f131a;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                        <div style="font-size:14px;font-weight:800;">Trading Signal – ${p.symbol}</div>
-                        ${dirBadge}
-                    </div>
-                    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                        <div><div style="opacity:.7;font-size:12px;">Entry Price</div><div style="font-weight:800;">${formatMoney(p.entry_price)}</div></div>
-                        <div><div style="opacity:.7;font-size:12px;">Current Price</div><div style="font-weight:800;">${formatMoney(p.current_price)}</div></div>
-                        <div><div style="opacity:.7;font-size:12px;">Stop Loss</div><div style="font-weight:800;">${formatMoney(p.stop_loss)}</div></div>
-                        <div><div style="opacity:.7;font-size:12px;">Valid</div><div style="font-weight:800;">${formatValid(p.valid_until)}</div></div>
-                    </div>
-                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr;gap:8px;">
-                        <div style="display:flex;justify-content:space-between;gap:10px;">
-                            <div><div style="opacity:.7;font-size:12px;">Take Profit 1</div><div style="font-weight:800;">${formatMoney(tp1.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp1.eta)}</span></div></div>
+                <div class="pred-card ${dirClass}">
+                    <div class="pred-header">
+                        <div class="pred-symbol">
+                            <div class="pred-icon">${sym.substring(0, 3)}</div>
+                            <div class="pred-info">
+                                <h3>${p.symbol}</h3>
+                                <span>${p.timeframe || '15m'} • ${p.source || 'Auto'}</span>
+                            </div>
                         </div>
-                        <div style="display:flex;justify-content:space-between;gap:10px;">
-                            <div><div style="opacity:.7;font-size:12px;">Take Profit 2</div><div style="font-weight:800;">${formatMoney(tp2.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp2.eta)}</span></div></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;gap:10px;">
-                            <div><div style="opacity:.7;font-size:12px;">Take Profit 3</div><div style="font-weight:800;">${formatMoney(tp3.price)} <span style="opacity:.7;font-weight:600;">@ ${formatEta(tp3.eta)}</span></div></div>
+                        <div class="pred-badges">
+                            <span class="pred-dir-tag ${dirClass}">${dirText}</span>
                         </div>
                     </div>
-                    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-                        <div><div style="opacity:.7;font-size:12px;">Confidence</div><div style="font-weight:800;">${Math.round(p.confidence_score)}/100</div></div>
-                        <div><div style="opacity:.7;font-size:12px;">Accuracy</div><div style="font-weight:800;">${Math.round(p.accuracy_percent)}%</div></div>
-                        <div><div style="opacity:.7;font-size:12px;">Leverage</div><div style="font-weight:800;">${Math.round(p.leverage)}x</div></div>
+                    <div class="pred-body">
+                        <div class="pred-price-grid">
+                            <div class="pred-price-box">
+                                <div class="pred-price-label">Current</div>
+                                <div class="pred-price-val">${formatMoney(currPrice)}</div>
+                            </div>
+                            <div class="pred-price-box">
+                                <div class="pred-price-label">Entry</div>
+                                <div class="pred-price-val entry">${formatMoney(p.entry_price)}</div>
+                            </div>
+                            <div class="pred-price-box">
+                                <div class="pred-price-label">SL</div>
+                                <div class="pred-price-val sl">${formatMoney(p.stop_loss)}</div>
+                            </div>
+                            <div class="pred-price-box">
+                                <div class="pred-price-label">Risk/Reward</div>
+                                <div class="pred-price-val" style="color: var(--yellow);">${tps.length > 0 && tp1.price && p.stop_loss ? ((tp1.price - p.entry_price) / (p.entry_price - p.stop_loss)).toFixed(2) : '--'}</div>
+                            </div>
+                        </div>
+                        ${tpSection}
+                        <div class="pred-metrics">
+                            <div class="pred-metric">
+                                <div class="pred-metric-header">
+                                    <span class="pred-metric-label">Confidence</span>
+                                    <span class="pred-metric-value">${Math.round(p.confidence_score || 0)}%</span>
+                                </div>
+                                <div class="pred-metric-bar">
+                                    <div class="pred-metric-fill cyan" style="width: ${Math.min(p.confidence_score || 0, 100)}%"></div>
+                                </div>
+                            </div>
+                            <div class="pred-metric">
+                                <div class="pred-metric-header">
+                                    <span class="pred-metric-label">Accuracy</span>
+                                    <span class="pred-metric-value">${Math.round(p.accuracy_percent || 0)}%</span>
+                                </div>
+                                <div class="pred-metric-bar">
+                                    <div class="pred-metric-fill green" style="width: ${Math.min(p.accuracy_percent || 0, 100)}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pred-footer">
+                        <span>Valid until <span class="pred-valid">${validStr}</span></span>
+                        <span>${tps.length} Take Profits</span>
                     </div>
                 </div>
             `;
         }
 
+        let currentTimeframe = '15m';
+
+        function switchTimeframe(tf) {
+            currentTimeframe = tf;
+            // Update button states
+            document.querySelectorAll('.pred-tf-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            document.querySelector(`[data-tf="${tf}"]`).classList.add('active');
+            // Reload predictions for new timeframe
+            loadPredictions();
+        }
+
         async function loadPredictions() {
-            const res = await fetch("/api/predictions");
-            const data = await res.json();
-            const list = Object.values(data.predictions || {}).map(normalizePrediction);
-            list.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0));
-            const container = document.getElementById("predictions-container");
-            container.innerHTML = list.map(renderPredictionCard).join("");
+            try {
+                const res = await fetch(`/api/predictions?timeframe=${currentTimeframe}`);
+                const data = await res.json();
+                const list = Object.values(data.predictions || {}).map(normalizePrediction);
+                // Sort by confidence score (highest first)
+                list.sort((a, b) => (b.confidence_score || 0) - (a.confidence_score || 0));
+                const container = document.getElementById('predictions-container');
+                if (list.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>No predictions available</p></div>';
+                } else {
+                    container.innerHTML = list.map(renderPredictionCard).join('');
+                }
+            } catch (e) {
+                console.error('loadPredictions error:', e);
+                toast('Failed to load predictions', 'error');
+            }
         }
 
         // Initial load + refresh

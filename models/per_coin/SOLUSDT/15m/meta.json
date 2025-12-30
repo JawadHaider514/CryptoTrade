@@ -1,0 +1,36 @@
+{
+  "symbol": "SOLUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.29424103737604884,
+    "precision": 0.17155103950972417,
+    "recall": 0.29424103737604884,
+    "f1": 0.21524037091253692,
+    "confusion_matrix": [
+      [
+        561,
+        0,
+        1003
+      ],
+      [
+        1048,
+        0,
+        1081
+      ],
+      [
+        569,
+        0,
+        982
+      ]
+    ]
+  }
+}

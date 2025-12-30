@@ -65,13 +65,13 @@ def validate_datasets(
         
         # Check if dataset exists
         if not dataset_path.exists():
-            print(f"{symbol:<12} {'❌':<10} {'N/A':<12} {'N/A':<8} {'N/A':<8} {'N/A':<12} {'N/A':<10} {'N/A':<10} {'N/A':<10}")
+            print(f"{symbol:<12} {'MISSING':<10} {'N/A':<12} {'N/A':<8} {'N/A':<8} {'N/A':<12} {'N/A':<10} {'N/A':<10} {'N/A':<10}")
             results[symbol] = result
             continue
         
         # Check if meta exists
         if not meta_path.exists():
-            print(f"{symbol:<12} {'⚠️':<10} {'MISSING':<12} {'META':<8} {'FILE':<8} {'':<12} {'':<10} {'':<10} {'':<10}")
+            print(f"{symbol:<12} {'NO_META':<10} {'MISSING':<12} {'FILE':<8} {'':<8} {'':<12} {'':<10} {'':<10} {'':<10}")
             results[symbol] = result
             continue
         
@@ -112,14 +112,14 @@ def validate_datasets(
             no_trade_pct = class_dist.get('NO_TRADE', 0) / len(df) * 100 if len(df) > 0 else 0
             
             print(
-                f"{symbol:<12} {'✅':<10} {len(df):<12,} "
+                f"{symbol:<12} {'OK':<10} {len(df):<12,} "
                 f"{class_dist.get('LONG', 0):<8} {class_dist.get('SHORT', 0):<8} "
                 f"{class_dist.get('NO_TRADE', 0):<12} "
                 f"{train_size:<10} {val_size:<10} {test_size:<10}"
             )
             
         except Exception as e:
-            print(f"{symbol:<12} {'❌':<10} {'ERROR':<12} {str(e)[:40]:<8} {'':<8} {'':<12} {'':<10} {'':<10} {'':<10}")
+            print(f"{symbol:<12} {'ERROR':<10} {str(e)[:40]:<12} {'':<8} {'':<8} {'':<12} {'':<10} {'':<10} {'':<10}")
             result['status'] = 'error'
             result['error'] = str(e)
         

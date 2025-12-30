@@ -1,0 +1,36 @@
+{
+  "symbol": "ETHUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.44336384439359267,
+    "precision": 0.6295461309063497,
+    "recall": 0.44336384439359267,
+    "f1": 0.3905917174180871,
+    "confusion_matrix": [
+      [
+        1,
+        464,
+        885
+      ],
+      [
+        0,
+        1385,
+        1119
+      ],
+      [
+        0,
+        451,
+        939
+      ]
+    ]
+  }
+}

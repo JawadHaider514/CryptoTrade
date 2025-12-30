@@ -149,9 +149,18 @@ class HistoricalDataDownloader:
 
 
 if __name__ == '__main__':
-    symbols = [
-        'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'ADA/USDT',
-        'DOGE/USDT', 'SOL/USDT', 'MATIC/USDT', 'DOT/USDT', 'LTC/USDT'
-    ]
+    # Load symbols from config
+    try:
+        import json as _json
+        from pathlib import Path as _Path
+        _config_path = _Path(__file__).parent.parent / "config" / "coins.json"
+        _coins_config = _json.load(open(_config_path))
+        symbols = [f"{s.replace('USDT', '')}/USDT" for s in _coins_config.get("symbols", [])]
+    except Exception:
+        # Fallback: basic symbols list
+        symbols = [
+            'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'ADA/USDT',
+            'DOGE/USDT', 'SOL/USDT', 'DOT/USDT'
+        ]
     downloader = HistoricalDataDownloader()
     downloader.download_all_symbols(symbols, start_date='2020-01-01')

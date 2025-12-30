@@ -3,7 +3,14 @@ INTEGRATION MODULE
 Connect TradeTracker with existing trading system
 """
 
-from trade_tracker import TradeTracker
+try:
+    from crypto_bot.core.trade_tracker import TradeTracker
+except ImportError:
+    try:
+        from trade_tracker import TradeTracker
+    except ImportError:
+        TradeTracker = None
+
 from datetime import datetime
 from typing import Dict, Any, Optional
 
@@ -14,6 +21,9 @@ class TradingSystemIntegration:
     """
     
     def __init__(self, data_dir: str = "./trade_data"):
+        if TradeTracker is None:
+            raise RuntimeError("TradeTracker module not available")
+        
         self.tracker = TradeTracker(data_dir=data_dir)
         self.active_trades = {}  # Store active trade IDs
         

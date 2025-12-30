@@ -38,8 +38,8 @@ class DashboardDataProvider:
                 
                 cursor.execute("""
                     SELECT * FROM live_signals 
-                    WHERE status IN ('ACTIVE', 'PENDING')
-                    ORDER BY entry_time DESC
+                    WHERE status IN ('MONITORING', 'CLOSED')
+                    ORDER BY created_at DESC
                     LIMIT 20
                 """)
                 
@@ -246,6 +246,40 @@ def get_accuracy():
     """Get accuracy by score range"""
     accuracy = data_provider.get_accuracy_by_score()
     return jsonify(accuracy)
+
+@app.route('/api/predictions', methods=['GET'])
+def get_predictions():
+    """Get live ML predictions for all coins"""
+    try:
+        from crypto_bot.ml.inference.inference_service import InferenceService
+        import json
+        
+        # Load coins from config
+        with open('config/coins.json') as f:
+            config = json.load(f)
+            coins = config.get('symbols', []) or config.get('coins', [])
+        
+        service = InferenceService(device="cpu")
+        predictions = []
+        
+        for symbol in coins[:10]:  # Limit to first 10 for performance
+            pred = service.predict(symbol, '15m')
+            if pred:
+                predictions.append(pred.to_dict())
+        
+        return jsonify({
+            'predictions': predictions,
+            'count': len(predictions),
+            'timestamp': datetime.now().isoformat()
+        }), 200
+    except Exception as e:
+        logger.error(f"Predictions error: {e}", exc_info=True)
+        return jsonify({
+            'predictions': [],
+            'count': 0,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 200
 
 @app.route('/')
 def dashboard():

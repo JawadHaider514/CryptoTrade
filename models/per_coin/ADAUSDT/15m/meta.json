@@ -1,0 +1,36 @@
+{
+  "symbol": "ADAUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.36441647597254007,
+    "precision": 0.400434283514185,
+    "recall": 0.36441647597254007,
+    "f1": 0.3257615795112691,
+    "confusion_matrix": [
+      [
+        1272,
+        184,
+        302
+      ],
+      [
+        1316,
+        356,
+        193
+      ],
+      [
+        1150,
+        188,
+        283
+      ]
+    ]
+  }
+}

@@ -24,7 +24,7 @@ try:
     print("\nImplementation Summary:")
     print("  Phase 2: 5 new service files created")
     print("  Phase 3: advanced_web_server.py updated with:")
-    print("    - SYMBOLS list (35 cryptocurrencies)")
+    print("    - SYMBOLS list (32 cryptocurrencies)")
     print("    - init_services() function")
     print("    - REST endpoints (/api/predictions, /api/prices)")
     print("    - SocketIO event handlers")

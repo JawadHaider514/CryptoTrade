@@ -36,10 +36,27 @@ class SignalRepository:
         """
         Args:
             use_sqlite: Enable SQLite persistence
-            db_path: Path to SQLite database
+            db_path: Path to SQLite database (will be converted to absolute path)
         """
         self.use_sqlite = use_sqlite
-        self.db_path = db_path
+        
+        # Convert to absolute path if relative
+        if isinstance(db_path, str):
+            db_path_obj = Path(db_path)
+            if not db_path_obj.is_absolute():
+                # Get PROJECT_ROOT
+                try:
+                    project_root = Path(__file__).resolve()
+                    while project_root.name != "crypto_trading_system" and project_root.parent != project_root:
+                        project_root = project_root.parent
+                    db_path_obj = project_root / db_path
+                except Exception:
+                    db_path_obj = Path(db_path).resolve()
+            self.db_path = str(db_path_obj)
+        else:
+            self.db_path = str(Path(db_path).resolve())
+        
+        logger.info(f"📁 Signal Repository DB: {self.db_path}")
         
         # In-memory cache (primary storage)
         self.cache: Dict[str, SignalModel] = {}
@@ -94,9 +111,16 @@ class SignalRepository:
     def upsert_latest(self, signal: SignalModel) -> None:
         """Update or insert latest signal for a symbol (in cache + DB)"""
         
+        if not signal:
+            logger.warning("⚠️ Attempted to upsert_latest with None signal")
+            return
+        
         with self.lock:
             # Update cache
+            old_signal = self.cache.get(signal.symbol)
             self.cache[signal.symbol] = signal
+            logger.info(f"💾 CACHE UPSERTED: {signal.symbol} -> {signal.direction} @ ${signal.entry_price:.2f} (was: {old_signal.direction if old_signal else 'NEW'})")
+            logger.info(f"   Cache size now: {len(self.cache)} symbols")
             
             # Add to history
             if signal.symbol not in self.history:
@@ -151,6 +175,7 @@ class SignalRepository:
                     json.dumps(signal_dict_safe)
                 ))
                 conn.commit()
+                logger.info(f"✅ DB STORED: {signal.symbol} saved to SQLite")
         
         except Exception as e:
             logger.error(f"❌ Error storing signal for {signal.symbol}: {e}")
@@ -161,9 +186,85 @@ class SignalRepository:
             return self.cache.get(symbol)
     
     def get_latest_all(self) -> Dict[str, SignalModel]:
-        """Get latest signal for all symbols (from cache)"""
+        """Get latest signal for all symbols (from cache, reload from DB if empty)"""
         with self.lock:
-            return dict(self.cache)
+            result = dict(self.cache)
+            logger.debug(f"📊 CACHE READ: Retrieved {len(result)} signals from cache: {list(result.keys())}")
+            
+            # If cache empty, try loading from DB
+            if not result and self.use_sqlite:
+                logger.warning(f"⚠️ CACHE EMPTY: Attempting to reload from DB...")
+                try:
+                    self._load_from_db()
+                    result = dict(self.cache)
+                    if result:
+                        logger.info(f"✅ Reloaded {len(result)} signals from DB")
+                except Exception as e:
+                    logger.error(f"❌ DB reload failed: {e}")
+            
+            if not result:
+                logger.warning(f"⚠️ CACHE EMPTY: No signals in memory cache or DB")
+            return result
+    
+    def _load_from_db(self):
+        """Reload signals from SQLite database into cache"""
+        if not self.use_sqlite:
+            return
+            
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.execute("""
+                    SELECT symbol, timeframe, timestamp, direction, entry_price, stop_loss, 
+                           take_profits, confidence_score, accuracy_percent, leverage, valid_until,
+                           current_price, reasons, patterns, market_context, signal_json
+                    FROM signals
+                    ORDER BY timestamp DESC
+                """)
+                
+                signals_by_symbol = {}
+                for row in cursor.fetchall():
+                    try:
+                        symbol = row[0]
+                        
+                        # Use signal_json if available, otherwise reconstruct
+                        if row[15]:  # signal_json column
+                            signal_dict = json.loads(row[15])
+                            signal = SignalModel.model_validate(signal_dict)
+                        else:
+                            # Reconstruct from columns
+                            signal = SignalModel(
+                                symbol=symbol,
+                                timeframe=row[1],
+                                timestamp=datetime.fromisoformat(row[2].replace('Z', '+00:00')) if isinstance(row[2], str) else row[2],
+                                direction=row[3],
+                                entry_price=row[4],
+                                stop_loss=row[5],
+                                take_profits=json.loads(row[6]) if isinstance(row[6], str) else row[6] or [],
+                                confidence_score=row[7],
+                                accuracy_percent=row[8],
+                                leverage=row[9],
+                                valid_until=datetime.fromisoformat(row[10].replace('Z', '+00:00')) if isinstance(row[10], str) else row[10],
+                                current_price=row[11],
+                                reasons=json.loads(row[12]) if isinstance(row[12], str) else row[12] or [],
+                                patterns=json.loads(row[13]) if isinstance(row[13], str) else row[13] or [],
+                                market_context=row[14] or "",
+                                source="DB"
+                            )
+                        
+                        # Keep latest per symbol
+                        if symbol not in signals_by_symbol:
+                            signals_by_symbol[symbol] = signal
+                    except Exception as parse_err:
+                        logger.warning(f"Failed to parse signal from DB: {parse_err}")
+                        continue
+                
+                # Update cache with loaded signals
+                self.cache.update(signals_by_symbol)
+                logger.info(f"✅ DB RELOAD: Loaded {len(signals_by_symbol)} signals into cache")
+                
+        except Exception as e:
+            logger.error(f"❌ DB load failed: {e}")
+            raise
     
     def get_history(self, symbol: str, limit: int = 100) -> List[SignalModel]:
         """Get past N signals for a symbol"""

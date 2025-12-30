@@ -17,6 +17,8 @@ import json
 import threading
 import time
 from collections import deque
+from pathlib import Path
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,6 +34,17 @@ class LiveSignalTracker:
             db_path: Path to database
             check_interval: Seconds between price checks
         """
+        # Convert to absolute path if relative
+        if not os.path.isabs(db_path):
+            # Get project root
+            project_root = Path(__file__).resolve().parent.parent.parent.parent
+            db_path = str(project_root / db_path)
+        
+        # Ensure directory exists
+        db_dir = os.path.dirname(db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
+        
         self.db_path = db_path
         self.check_interval = check_interval
         self.base_url = "https://api.binance.com/api/v3"

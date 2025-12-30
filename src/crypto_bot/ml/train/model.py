@@ -118,7 +118,7 @@ def load_dataset_with_splits(
     dataset_path: str,
     meta_path: str,
     lookback: int = 60,
-) -> Tuple[Dict[str, np.ndarray], dict]:
+) -> Tuple[Dict[str, np.ndarray | StandardScaler], dict]:
     """
     Load dataset and split into train/val/test.
     
@@ -222,6 +222,23 @@ def train_model(
     """
     X_train, y_train = train_data
     X_val, y_val = val_data
+    
+    # Validate labels are in range [0, num_classes)
+    all_labels = np.concatenate([y_train, y_val])
+    unique_labels = np.unique(all_labels)
+    min_label = unique_labels.min()
+    max_label = unique_labels.max()
+    num_classes = model.num_classes
+    
+    if min_label < 0 or max_label >= num_classes:
+        raise ValueError(
+            f"Invalid labels found. Labels must be in range [0, {num_classes}). "
+            f"Got range [{min_label}, {max_label}]. "
+            f"Unique labels: {sorted(unique_labels.tolist())}. "
+            f"Expected mapping: SHORT=0, NO_TRADE=1, LONG=2"
+        )
+    
+    logger.info(f"Label validation passed. Range: [{min_label}, {max_label}], Unique: {sorted(unique_labels.tolist())}")
     
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()

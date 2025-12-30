@@ -1,0 +1,36 @@
+{
+  "symbol": "BNBUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.4839816933638444,
+    "precision": 0.472392850535833,
+    "recall": 0.4839816933638444,
+    "f1": 0.4768279069917883,
+    "confusion_matrix": [
+      [
+        344,
+        578,
+        302
+      ],
+      [
+        552,
+        1832,
+        368
+      ],
+      [
+        332,
+        574,
+        362
+      ]
+    ]
+  }
+}

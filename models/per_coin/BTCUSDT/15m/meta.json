@@ -1,0 +1,36 @@
+{
+  "symbol": "BTCUSDT",
+  "timeframe": "15m",
+  "model_version": "cnn_lstm_v1",
+  "lookback": 60,
+  "num_features": 15,
+  "dataset_info": {
+    "num_features": 15,
+    "train_samples": 24472,
+    "val_samples": 5244,
+    "test_samples": 5244
+  },
+  "test_metrics": {
+    "accuracy": 0.593440122044241,
+    "precision": 0.52392252775002,
+    "recall": 0.593440122044241,
+    "f1": 0.5349034818360312,
+    "confusion_matrix": [
+      [
+        149,
+        735,
+        171
+      ],
+      [
+        157,
+        2781,
+        182
+      ],
+      [
+        154,
+        733,
+        182
+      ]
+    ]
+  }
+}

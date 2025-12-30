@@ -303,6 +303,32 @@
             </table>
         </div>
 
+        <!-- ML Predictions Section -->
+        <div class="signals-table">
+            <h3>ML Predictions (15m)</h3>
+            <table id="predictionsTable">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Direction</th>
+                        <th>Confidence</th>
+                        <th>Accuracy</th>
+                        <th>Current Price</th>
+                        <th>Entry</th>
+                        <th>Stop Loss</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7" class="loading">
+                            <div class="spinner"></div>
+                            Loading predictions...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="footer">
             <p>Crypto Trading Dashboard • Real-time monitoring • Powered by your trading system</p>
         </div>
@@ -476,11 +502,42 @@
             }
         }
 
+        async function updatePredictionsTable() {
+            try {
+                const response = await fetch('/api/predictions');
+                const result = await response.json();
+                const predictions = result.predictions || [];
+
+                const tbody = document.querySelector('#predictionsTable tbody');
+
+                if (predictions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="loading">No predictions available</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = predictions.map(pred => {
+                    const directionColor = pred.direction === 'LONG' ? '#00ff00' : pred.direction === 'SHORT' ? '#ff0000' : '#ffaa00';
+                    return `
+                    <tr>
+                        <td><strong>${pred.symbol}</strong></td>
+                        <td style="color: ${directionColor}; font-weight: bold;">${pred.direction}</td>
+                        <td>${pred.confidence.toFixed(1)}%</td>
+                        <td>${pred.accuracy_estimate.toFixed(1)}%</td>
+                        <td>$${parseFloat(pred.current_price).toFixed(2)}</td>
+                        <td>$${parseFloat(pred.entry_price).toFixed(8)}</td>
+                        <td>$${parseFloat(pred.stop_loss).toFixed(8)}</td>
+                    </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error updating predictions table:', error);
+            }
+        }
+
         // Initial load
         updateDashboard();
+        updatePredictionsTable();
 
         // Auto-refresh
         setInterval(updateDashboard, updateInterval);
-    </script>
-</body>
-</html>
+        setInterval(updatePredictionsTable, updateInterval);

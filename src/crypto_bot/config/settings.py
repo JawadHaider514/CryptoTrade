@@ -161,27 +161,24 @@ BINANCE_CONFIG = {
 # TRADING PAIRS
 # =============================================================================
 
-TRADING_PAIRS = [
-    # Major pairs
-    'BTCUSDT',
-    'ETHUSDT',
-    'BNBUSDT',
-    
-    # Alt coins
-    'XRPUSDT',
-    'ADAUSDT',
-    'SOLUSDT',
-    'DOTUSDT',
-    'AVAXUSDT',
-    'MATICUSDT',
-    'LINKUSDT',
-    
-    # Meme coins
-    'DOGEUSDT',
-    'SHIBUSDT',
-    'PEPEUSDT',
-    'FLOKIUSDT',
-]
+# Load trading pairs from config
+try:
+    import json as _json
+    from pathlib import Path as _Path
+    _coins_config_path = _Path(__file__).parent / "coins.json"
+    _coins_data = _json.load(open(_coins_config_path))
+    TRADING_PAIRS = _coins_data.get("symbols", [])
+except Exception:
+    # Fallback: 32 verified trading symbols
+    TRADING_PAIRS = [
+        'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'ADAUSDT',
+        'SOLUSDT', 'DOGEUSDT', 'DOTUSDT', 'AVAXUSDT', 'UNIUSDT',
+        'LINKUSDT', 'XLMUSDT', 'ATOMUSDT', 'MANAUSDT', 'SANDUSDT',
+        'DASHUSDT', 'VETUSDT', 'ICPUSDT', 'GMTUSDT', 'PEOPLEUSDT',
+        'LUNCUSDT', 'CHZUSDT', 'NEARUSDT', 'FLOWUSDT', 'FILUSDT',
+        'QTUMUSDT', 'SNXUSDT', 'SHIBUSDT', 'PEPEUSDT', 'WIFUSDT',
+        'FLOKIUSDT', 'OPUSDT',
+    ]
 
 
 # =============================================================================
@@ -271,11 +268,29 @@ COIN_NAMES = {
     'DOGEUSDT': 'Dogecoin',
     'DOTUSDT': 'Polkadot',
     'AVAXUSDT': 'Avalanche',
-    'MATICUSDT': 'Polygon',
     'LINKUSDT': 'Chainlink',
     'SHIBUSDT': 'Shiba Inu',
     'PEPEUSDT': 'Pepe',
     'FLOKIUSDT': 'Floki',
+    'UNIUSDT': 'Uniswap',
+    'XLMUSDT': 'Stellar',
+    'ATOMUSDT': 'Cosmos',
+    'MANAUSDT': 'Decentraland',
+    'SANDUSDT': 'The Sandbox',
+    'DASHUSDT': 'Dash',
+    'VETUSDT': 'VeChain',
+    'ICPUSDT': 'Internet Computer',
+    'GMTUSDT': 'GMT Token',
+    'PEOPLEUSDT': 'ConstitutionDAO',
+    'LUNCUSDT': 'Luna Classic',
+    'CHZUSDT': 'Chiliz',
+    'NEARUSDT': 'NEAR Protocol',
+    'FLOWUSDT': 'Flow',
+    'FILUSDT': 'Filecoin',
+    'QTUMUSDT': 'Qtum',
+    'SNXUSDT': 'Synthetix',
+    'WIFUSDT': 'dogwifhat',
+    'OPUSDT': 'Optimism',
 }
 
 

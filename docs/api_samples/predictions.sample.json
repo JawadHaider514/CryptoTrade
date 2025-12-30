@@ -1,0 +1,108 @@
+{
+  "success": true,
+  "predictions": {
+    "BTCUSDT": {
+      "symbol": "BTCUSDT",
+      "timeframe": "15m",
+      "direction": "LONG",
+      "confidence": 78.5,
+      "accuracy_estimate": 87.3,
+      "current_price": 45250.50,
+      "entry_price": 45341.01,
+      "stop_loss": 45135.50,
+      "take_profits": [
+        {
+          "level": 1,
+          "price": 45796.01,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        },
+        {
+          "level": 2,
+          "price": 46468.01,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        },
+        {
+          "level": 3,
+          "price": 47340.50,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        }
+      ],
+      "timestamp": "2025-12-28T18:00:30.123456+00:00",
+      "valid_until": "2025-12-28T18:30:30.123456+00:00"
+    },
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "timeframe": "15m",
+      "direction": "SHORT",
+      "confidence": 65.2,
+      "accuracy_estimate": 82.1,
+      "current_price": 2450.75,
+      "entry_price": 2447.28,
+      "stop_loss": 2460.45,
+      "take_profits": [
+        {
+          "level": 1,
+          "price": 2420.12,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        },
+        {
+          "level": 2,
+          "price": 2379.15,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        },
+        {
+          "level": 3,
+          "price": 2312.75,
+          "eta": "2025-12-28T18:15:30.123456+00:00"
+        }
+      ],
+      "timestamp": "2025-12-28T18:00:30.123456+00:00",
+      "valid_until": "2025-12-28T18:30:30.123456+00:00"
+    },
+    "BNBUSDT": {
+      "symbol": "BNBUSDT",
+      "timeframe": "15m",
+      "direction": "NO_TRADE",
+      "confidence": 45.8,
+      "accuracy_estimate": 85.6,
+      "current_price": 612.30,
+      "entry_price": 612.30,
+      "stop_loss": 612.30,
+      "take_profits": [],
+      "timestamp": "2025-12-28T18:00:30.123456+00:00",
+      "valid_until": "2025-12-28T18:30:30.123456+00:00"
+    },
+    "XRPUSDT": {
+      "symbol": "XRPUSDT",
+      "timeframe": "1h",
+      "direction": "LONG",
+      "confidence": 71.3,
+      "accuracy_estimate": 86.9,
+      "current_price": 2.48,
+      "entry_price": 2.485,
+      "stop_loss": 2.450,
+      "take_profits": [
+        {
+          "level": 1,
+          "price": 2.534,
+          "eta": "2025-12-28T20:00:30.123456+00:00"
+        },
+        {
+          "level": 2,
+          "price": 2.596,
+          "eta": "2025-12-28T20:00:30.123456+00:00"
+        },
+        {
+          "level": 3,
+          "price": 2.696,
+          "eta": "2025-12-28T20:00:30.123456+00:00"
+        }
+      ],
+      "timestamp": "2025-12-28T18:00:30.123456+00:00",
+      "valid_until": "2025-12-28T20:00:30.123456+00:00"
+    }
+  },
+  "count": 4,
+  "warming_up": false,
+  "timestamp": "2025-12-28T18:00:30.123456+00:00"
+}

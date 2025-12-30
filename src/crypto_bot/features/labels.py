@@ -41,45 +41,68 @@ def create_labels(
     
     Returns:
         Tuple of:
-        - df: Original dataframe with added 'label' column (0=NO_TRADE, 1=LONG, -1=SHORT)
+        - df: Original dataframe with added 'label' column (0=SHORT, 1=NO_TRADE, 2=LONG)
         - label_config: Dict with configuration used
     
     Logic:
         future_return = (close[t+horizon] / close[t]) - 1
         
-        if future_return > +threshold  → label = 1 (LONG)
-        if future_return < -threshold  → label = -1 (SHORT)
-        else                            → label = 0 (NO_TRADE)
+        if future_return > +threshold  → label = 2 (LONG)
+        if future_return < -threshold  → label = 0 (SHORT)
+        else                            → label = 1 (NO_TRADE)
     """
-    df = df.copy()
-    
-    # Calculate future returns (look ahead by horizon)
-    future_price = df['close'].shift(-horizon)
-    future_return = (future_price / df['close']) - 1
-    
-    # Create labels based on threshold
-    df['label'] = 0  # Default NO_TRADE
-    df.loc[future_return > threshold, 'label'] = 1  # LONG
-    df.loc[future_return < -threshold, 'label'] = -1  # SHORT
-    
-    # Count labels
-    label_counts = df['label'].value_counts().to_dict()
-    
-    label_config = {
-        'horizon': horizon,
-        'threshold': threshold,
-        'threshold_pct': f"{threshold * 100:.2f}%",
-        'label_distribution': {
-            'LONG': label_counts.get(1, 0),
-            'SHORT': label_counts.get(-1, 0),
-            'NO_TRADE': label_counts.get(0, 0),
+    try:
+        df = df.copy()
+        
+        # Validate input
+        if 'close' not in df.columns:
+            raise ValueError("DataFrame must contain 'close' column")
+        
+        if horizon <= 0:
+            raise ValueError(f"horizon must be > 0, got {horizon}")
+        
+        if threshold < 0:
+            raise ValueError(f"threshold must be >= 0, got {threshold}")
+        
+        # Calculate future returns (look ahead by horizon)
+        future_price = df['close'].shift(-horizon)
+        future_return = (future_price / df['close']) - 1
+        
+        # Create labels based on threshold
+        df['label'] = 1  # Default NO_TRADE
+        df.loc[future_return > threshold, 'label'] = 2  # LONG
+        df.loc[future_return < -threshold, 'label'] = 0  # SHORT
+        
+        # Count labels
+        label_counts = df['label'].value_counts().to_dict()
+        
+        label_config = {
+            'horizon': horizon,
+            'threshold': threshold,
+            'threshold_pct': f"{threshold * 100:.2f}%",
+            'label_mapping': {
+                'SHORT': 0,
+                'NO_TRADE': 1,
+                'LONG': 2,
+            },
+            'label_distribution': {
+                'SHORT': int(label_counts.get(0, 0)),
+                'NO_TRADE': int(label_counts.get(1, 0)),
+                'LONG': int(label_counts.get(2, 0)),
+            }
         }
-    }
+        
+        logger.info(
+            f"Created labels: SHORT={label_counts.get(0, 0)} | "
+            f"NO_TRADE={label_counts.get(1, 0)} | "
+            f"LONG={label_counts.get(2, 0)}"
+        )
+        
+        return df, label_config
     
-    logger.info(
-        f"Created labels: LONG={label_counts.get(1, 0)} | "
-        f"SHORT={label_counts.get(-1, 0)} | "
-        f"NO_TRADE={label_counts.get(0, 0)}"
-    )
-    
-    return df, label_config
+    except Exception as e:
+        logger.error(f"Error creating labels: {e}")
+        raise
+
+
+__all__ = ['create_labels', 'LabelConfig']

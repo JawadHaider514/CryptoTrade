@@ -12,9 +12,10 @@ ENABLE_ORDERFLOW = os.getenv("ENABLE_ORDERFLOW", "false").lower() == "true"
 SIGNAL_REFRESH_INTERVAL = int(os.getenv("SIGNAL_REFRESH_INTERVAL", "30"))
 SIGNAL_VALID_MINUTES = int(os.getenv("SIGNAL_VALID_MINUTES", "240"))
 
-# Minimum Thresholds (temporarily lowered for UI testing with fallback signals)
-MIN_CONFIDENCE = int(os.getenv("MIN_CONFIDENCE", "15"))
-MIN_ACCURACY = int(os.getenv("MIN_ACCURACY", "0"))  # Set to 0 to show fallback signals with low accuracy
+# Minimum Thresholds (dev/testing defaults - relaxed for pipeline verification)
+# For production with high accuracy, increase these values
+MIN_CONFIDENCE = int(os.getenv("MIN_CONFIDENCE", "0"))   # Dev: 0 (accept all) | Prod: 50+
+MIN_ACCURACY = int(os.getenv("MIN_ACCURACY", "0"))       # Dev: 0 (accept all) | Prod: 50+
 
 # Other Configuration
 FLASK_PORT = int(os.getenv("FLASK_PORT", "5000"))
