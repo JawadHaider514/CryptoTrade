@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Crypto Trading System
 
 A professional-grade cryptocurrency trading system with real-time signal generation, backtesting capabilities, paper trading, and machine learning integration.
@@ -264,3 +265,6 @@ For issues or questions about this project, refer to the code documentation or c
 **Version:** 1.0.0  
 **Last Updated:** December 2025  
 **License:** MIT
+=======
+# CryptoTrade
+>>>>>>> f44b6da2449b6a9413b6d9eda4c07819c00ca7bb
