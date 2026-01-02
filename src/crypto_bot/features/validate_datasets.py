@@ -18,7 +18,7 @@ PROJECT_ROOT = Path(__file__).resolve()
 while PROJECT_ROOT.name != "crypto_trading_system" and PROJECT_ROOT.parent != PROJECT_ROOT:
     PROJECT_ROOT = PROJECT_ROOT.parent
 
-DATASET_DIR = PROJECT_ROOT / "data" / "datasets"
+DATASET_DIR = PROJECT_ROOT / "models" / "per_coin"
 
 
 def validate_datasets(

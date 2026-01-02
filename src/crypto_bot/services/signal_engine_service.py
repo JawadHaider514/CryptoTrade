@@ -278,7 +278,7 @@ class SignalEngineService:
             return None
 
         return {
-            "direction": setup.get("direction"),
+            "direction": "direction",
             "entry": float(entry_f),
             "sl": float(sl_f),
             "take_profits": tp_prices,
@@ -505,7 +505,7 @@ class SignalEngineService:
             return self._no_trade(symbol, "No strategy produced a valid setup")
 
         # Extract
-        direction = analysis.get("direction", "LONG")
+        direction = str(analysis.get("direction") or "NO_TRADE").upper()
         if direction in ("NO_TRADE", "HOLD"):
             return self._no_trade(symbol, f"Direction={direction}")
 
